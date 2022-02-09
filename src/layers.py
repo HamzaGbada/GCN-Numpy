@@ -1,7 +1,16 @@
 import numpy as np
+from scipy.special import softmax
 
 
-class GCN_Layer():
+
+class Utils():
+    @staticmethod
+    def bias(n_in, n_out):
+        sd = np.sqrt(6.0 / (n_out + n_in))
+        return np.random.uniform(-sd, sd, size=(n_out, n_in))
+
+
+class GCN_Layer(Utils):
     """
     Graph Convolution Layer
     """
@@ -10,7 +19,7 @@ class GCN_Layer():
         self.nbr_int = nbr_int
         self.nbr_out = nbr_out
         # bias term
-        self.W = bias(self.nbr_out, self.nbr_int)
+        self.W = self.bias(self.nbr_int, self.nbr_out)
         self.activation = activation
 
     def forward(self, A, X, W=None):
@@ -23,7 +32,6 @@ class GCN_Layer():
             Return a hidden layer output (H)
         """
         # initialization
-        # GCN Layer Forward
         self._A = A
         self._X = np.dot(A, X).T
         if W is None:
@@ -52,7 +60,7 @@ class GCN_Layer():
 
 
 # a dense layer
-class Softmax_Layer():
+class Softmax_Layer(Utils):
     """
     Softmax Layer
     """
@@ -60,7 +68,7 @@ class Softmax_Layer():
     def __init__(self, nbr_in, nbr_out):
         self.nbr_in = nbr_in
         self.nbr_out = nbr_out
-        self.W = bias(self.nbr_out, self.nbr_in)
+        self.W = self.bias(self.nbr_in, self.nbr_out)
         self.b = np.zeros((self.nbr_out, 1))
         self._X = None  # Used to calculate gradients
 
@@ -83,7 +91,6 @@ class Softmax_Layer():
         return softmax(proj).T
 
     def backward(self, optim, update=True):
-        train_mask = np.zeros(optim.y_pred.shape[0])
         train_mask = [optim.train_nodes] = 1
         train_mask = train_mask.reshape((-1, 1))
 
@@ -97,7 +104,7 @@ class Softmax_Layer():
         dW = np.dot(d1.T, self._X.T) / optim.bs
         db = d1.T.sum(axis=1, deepdims=True) / optim.bs
 
-        dW_ws = self.W * optim.wd / optim.bs
+        dW_wd = self.W * optim.wd / optim.bs
 
         if update:
             self.w -= (dW + dW_wd) * optim.lr

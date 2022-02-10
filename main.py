@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 from src.NeuralNetwork import GCN_Network
 from src.layers import Utils
 
-# Here I used networkx Binomial graph as dataset (you can changed it or test it with other params) it params are
-# choosing randomely
+# Here I used networkx Binomial graph as dataset (you can changed it or test it with other params) it params are choosing randomly
 # https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.binomial_graph.html
 # you are free to change the data I already test it on Zachary’s Karate Club graph, and The Turan Graph
 # For more check

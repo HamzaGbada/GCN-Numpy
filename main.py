@@ -55,7 +55,7 @@ gcn_model = GCN_Network(
     hidden_sizes=[16, 2],
     activation=np.tanh
 )
-
 y_pred = gcn_model.forward(A_Laplacien, X)
 embed = gcn_model.embedding(A_Laplacien, X)
 Utils.xent(y_pred, labels).mean()
+

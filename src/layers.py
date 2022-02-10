@@ -108,10 +108,10 @@ class Softmax_Layer(Utils):
         dW = np.dot(d1.T, self._X.T) / optim.bs
         db = d1.T.sum(axis=1, keepdims=True) / optim.bs
 
-        dW_wd = self.W * optim.wd / optim.bs
+        dW_wd = self.W * optim.w / optim.bs
 
         if update:
-            self.w -= (dW + dW_wd) * optim.alpha
+            self.W -= (dW + dW_wd) * optim.alpha
             self.b -= (db.reshape(self.b.shape) * optim.alpha)
 
         return dW + dW_wd, db.reshape(self.b.shape)

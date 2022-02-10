@@ -20,17 +20,18 @@ class GCN_Network:
         # hidden layers
         for l in range(nbr_layer):
             gcn = GCN_Layer(self.layers[-1].W.shape[0], hidden_sizes[l])
+            print(gcn)
             self.layers.append(gcn)
 
         # output layer
         softmax_output = Softmax_Layer(hidden_sizes[-1], nbr_out)
+        print(softmax_output)
         self.layers.append(softmax_output)
 
     def embedding(self, A, X):
         # Loop through all GCN layers
         H = X
         for layer in self.layers[:-1]:
-            print(type(layer))
             H = layer.forward(A, H)
         return np.asarray(H)
 

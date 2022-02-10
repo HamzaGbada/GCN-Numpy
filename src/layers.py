@@ -2,12 +2,19 @@ import numpy as np
 from scipy.special import softmax
 
 
-
-class Utils():
+class Utils:
     @staticmethod
     def bias(n_in, n_out):
         sd = np.sqrt(6.0 / (n_out + n_in))
         return np.random.uniform(-sd, sd, size=(n_out, n_in))
+
+    @staticmethod
+    def xent(pred, labels):
+        return -np.log(pred)[np.arange(pred.shape[0]), np.argmax(labels, axis=1)]
+
+    @staticmethod
+    def norm_diff(dW, dW_approx):
+        return np.linalg.norm(dW - dW_approx) / (np.linalg.norm(dW) + np.linalg.norm(dW_approx))
 
 
 class GCN_Layer(Utils):
@@ -62,6 +69,7 @@ class Softmax_Layer(Utils):
     """
     Softmax Layer (Dense Layer)
     """
+
     def __init__(self, nbr_in, nbr_out):
         self.nbr_in = nbr_in
         self.nbr_out = nbr_out

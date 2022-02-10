@@ -1,7 +1,8 @@
 from src.layers import GCN_Layer, Softmax_Layer
 import numpy as np
 
-class GCN_Network():
+
+class GCN_Network:
 
     def __init__(self, nbr_int, nbr_out, nbr_layer, hidden_sizes, activation):
         self.nbr_int = nbr_int

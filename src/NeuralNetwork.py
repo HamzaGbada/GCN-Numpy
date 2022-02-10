@@ -12,6 +12,7 @@ class GCN_Network:
         self.activation = activation
 
         self.layers = list()
+        print("The layer of GNN model")
         # The input layer
         gcn_in = GCN_Layer(nbr_int, hidden_sizes[0], activation)
         self.layers.append(gcn_in)

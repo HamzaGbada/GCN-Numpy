@@ -29,6 +29,9 @@ class GCN_Layer(Utils):
         self.W = self.bias(self.nbr_int, self.nbr_out)
         self.activation = activation
 
+    def __str__(self):
+        return "GCN Layer"
+
     def forward(self, A, X, W=None):
         """
             An implementation of forward propagation
@@ -76,6 +79,9 @@ class Softmax_Layer(Utils):
         self.W = self.bias(self.nbr_in, self.nbr_out)
         self.b = np.zeros((self.nbr_out, 1))
         self._X = None
+
+    def __str__(self):
+        return "Softmax Layer"
 
     def forward(self, X, W=None, b=None):
         self._X = X.T

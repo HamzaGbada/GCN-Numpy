@@ -62,16 +62,15 @@ This is concise implementation of Graph Convolution Network (GCN) for educationa
    $ pip install -r requirements.txt
    ```
 3. Testing
-
-You can build the model without training
-   ```sh
-   $ python main.py
-   ```
-Or you can train it directly
-   ```sh
-   $ python train.py
-   ```
-
+    You can build the model without training
+    ```shell script
+    $ python main.py
+    ```
+    Or you can train it directly
+    ```shell script
+    $ python train.py
+    ```
+    
 
 ### Note
 Here I used Networkx [Binomial graph](https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.binomial_graph.html) (Erdős-Rényi graph) for generating random graphs as dataset it params are choosing randomly.

@@ -18,7 +18,7 @@ graph = nx.binomial_graph(100,0.6)
 
 # Graph plotting
 nx.draw_spectral(graph)
-plt.show
+plt.show()
 
 # Adjacent Matrix
 A = np.array(nx.to_numpy_matrix(graph))

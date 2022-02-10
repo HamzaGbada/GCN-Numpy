@@ -17,8 +17,8 @@ train_losses = list()
 test_losses = list()
 
 loss_min = 1e6
-es_iters = 0
-early_stop = 50
+early_stop_iters = 0
+early_stop = 30
 epochs = 500
 
 for epoch in range(epochs):
@@ -43,16 +43,16 @@ for epoch in range(epochs):
     train_losses.append(loss_train)
     test_losses.append(loss_test)
 
-    if loss_test < loss_min:
+    if loss_test <= loss_min:
         loss_min = loss_test
         early_stop_iters = 0
     else:
         early_stop_iters += 1
 
-    if es_iters > early_stop:
+    if early_stop_iters > early_stop:
         print("Early Stop")
         break
-    print(f"CurrentEpoch: {epoch + 1}, Training Loss: {loss_train:.5f}, Testing Loss: {loss_test:.5f}")
+    print(f"CurrentEpoch: {epoch}, Training Loss: {loss_train:.5f}, Testing Loss: {loss_test:.5f}")
 
 train_losses = np.array(train_losses)
 test_losses = np.array(test_losses)
@@ -64,3 +64,4 @@ ax.plot(np.log10(test_losses), label='Test')
 ax.plot(accuacy, label='Accuracy')
 ax.legend()
 ax.grid()
+plt.show()

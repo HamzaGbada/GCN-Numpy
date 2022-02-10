@@ -3,12 +3,18 @@ import networkx as nx
 import scipy.linalg as la
 import matplotlib.pyplot as plt
 
-# Here I used networkx Binomial graph as dataset (you can changed it or test it with other params)
-# https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.binomial_graph.html
+
 from src.NeuralNetwork import GCN_Network
 from src.layers import Utils
 
-graph = nx.binomial_graph(25,0.7)
+# Here I used networkx Binomial graph as dataset (you can changed it or test it with other params) it params are
+# choosing randomely
+# https://networkx.org/documentation/stable/reference/generated/networkx.generators.random_graphs.binomial_graph.html
+# you are free to change the data I already test it on Zachary’s Karate Club graph, and The Turan Graph
+# For more check
+# https://networkx.org/documentation/stable/reference/generated/networkx.generators.social.karate_club_graph.html
+# https://networkx.org/documentation/stable/reference/generated/networkx.generators.classic.turan_graph.html#
+graph = nx.binomial_graph(100,0.6)
 
 # Graph plotting
 nx.draw_spectral(graph)

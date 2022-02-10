@@ -1,11 +1,15 @@
-from main import gcn_model, A_Laplacien, X, labels
+from main import gcn_model, A_Laplacien, X, labels, graph
 from src.optimizer import Gradient_Descent_Optimizer
 from src.layers import Utils
 import numpy as np
+import matplotlib.pyplot as plt
 
-train_nodes = np.array([0, 1, 8])
+# train and test split (Here I don't have any strategy of split it just a random) 0.6: Train and 0.4: Test
+train_nodes = np.random.randint(graph.number_of_nodes(), size=((graph.number_of_nodes() * 3) // 5))
 test_nodes = np.array([i for i in range(labels.shape[0]) if i not in train_nodes])
-opt2 = Gradient_Descent_Optimizer(alpha=2e-2, w=2.5e-2)
+
+# optimizer params
+optimizer = Gradient_Descent_Optimizer(alpha=2e-2, w=2.5e-2)
 
 embeds = list()
 accuacy = list()
@@ -21,10 +25,10 @@ for epoch in range(epochs):
 
     y_pred = gcn_model.forward(A_Laplacien, X)
 
-    opt2(y_pred, labels, train_nodes)
+    optimizer(y_pred, labels, train_nodes)
 
     for layer in reversed(gcn_model.layers):
-        layer.backward(opt2, update=True)
+        layer.backward(optimizer, update=True)
 
     embeds.append(gcn_model.embedding(A_Laplacien, X))
     acc = (np.argmax(y_pred, axis=1) == np.argmax(labels, axis=1))[
@@ -52,3 +56,11 @@ for epoch in range(epochs):
 
 train_losses = np.array(train_losses)
 test_losses = np.array(test_losses)
+
+# Plot train and test losses
+fig, ax = plt.subplots()
+ax.plot(np.log10(train_losses), label='Train')
+ax.plot(np.log10(test_losses), label='Test')
+ax.plot(accuacy, label='Accuracy')
+ax.legend()
+ax.grid()

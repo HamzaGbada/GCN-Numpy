@@ -36,7 +36,6 @@ class GCN_Layer(Utils):
         self._X = np.dot(A, X).T
         if W is None:
             W = self.W
-
         H = np.dot(W, self._X)
         if self.activation is not None:
             H = self.activation(H)
@@ -59,39 +58,30 @@ class GCN_Layer(Utils):
         return dW + dW_wd
 
 
-# a dense layer
 class Softmax_Layer(Utils):
     """
-    Softmax Layer
+    Softmax Layer (Dense Layer)
     """
-
     def __init__(self, nbr_in, nbr_out):
         self.nbr_in = nbr_in
         self.nbr_out = nbr_out
         self.W = self.bias(self.nbr_in, self.nbr_out)
         self.b = np.zeros((self.nbr_out, 1))
-        self._X = None  # Used to calculate gradients
+        self._X = None
 
     def forward(self, X, W=None, b=None):
-
-        # Softmax forward
         self._X = X.T
-        print("Softmax input Shape")
-        print(self._X.shape)
         if W is None:
             W = self.W
-            print("Softmax W shape")
-            print(W.shape)
         if b is None:
             b = self.b
-            print("Softmax bias shape")
-            print(b.shape)
 
         proj = np.asarray(np.dot(W, self._X)) + b
         return softmax(proj).T
 
     def backward(self, optim, update=True):
-        train_mask = [optim.train_nodes] = 1
+        train_mask = np.zeros(optim.y_pred.shape[0])
+        train_mask[optim.train_nodes] = 1
         train_mask = train_mask.reshape((-1, 1))
 
         # le derivé du Cost funtion
@@ -102,12 +92,12 @@ class Softmax_Layer(Utils):
         optim.out = self.grad
 
         dW = np.dot(d1.T, self._X.T) / optim.bs
-        db = d1.T.sum(axis=1, deepdims=True) / optim.bs
+        db = d1.T.sum(axis=1, keepdims=True) / optim.bs
 
         dW_wd = self.W * optim.wd / optim.bs
 
         if update:
-            self.w -= (dW + dW_wd) * optim.lr
-            self.b -= (db.reshape(self.b.shape) * optim.lr)
+            self.w -= (dW + dW_wd) * optim.alpha
+            self.b -= (db.reshape(self.b.shape) * optim.alpha)
 
         return dW + dW_wd, db.reshape(self.b.shape)

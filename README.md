@@ -79,6 +79,6 @@ You are free to change it, I already test it on [Zachary’s Karate Club graph](
 <!-- references -->
 ## References
 
-* [1]Y. Ma and J. Tang, Deep learning on graphs. Cambridge university press, 2021.
+* Zhang, Si & Tong, Hanghang & Xu, Jiejun & Maciejewski, Ross. (2019). Graph convolutional networks: a comprehensive review. Computational Social Networks. 6. 10.1186/s40649-019-0069-y. 
 
 

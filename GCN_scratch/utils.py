@@ -18,6 +18,10 @@ class GraphUtils:
         d = np.linalg.inv(np.sqrt(degree))
         return np.identity(A.shape[0]) - np.dot(d, np.dot(A, d))
 
+    @staticmethod
+    def ReLU(x):
+        return x * (x > 0)
+
 if __name__ == "__main__":
     adjacency_matrix = np.array([
         [0, 1, 1, 0],

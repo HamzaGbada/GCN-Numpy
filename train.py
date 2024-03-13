@@ -22,8 +22,14 @@ if __name__ == "__main__":
     print(f"the adjancy matrix {A}")
     X = data.x
     print(f"the node feature {X.shape}, the number of node {data.num_nodes}")
-    y = data.y
-    print(f"the node feature {y}, the number of node {data.num_nodes}")
+    y = data.y.numpy()
+
+    # Get the number of unique labels
+    num_labels = len(np.unique(data.y))
+
+    # Convert labels to one-hot encoding
+    y = np.eye(num_labels)[y]
+    print(f"the node label {y}, the node label shape {y.shape},the number of node {data.num_nodes}")
 
     input_dim = X.shape[1]
     hidden_dim = 16  # Choose the size of the hidden layer

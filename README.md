@@ -14,8 +14,8 @@ This is concise implementation of Graph Convolution Network (GCN) for educationa
 
 ### Step 1: Data Representation
 - **Adjacency Matrix $A$**:
-  - Represents the graph structure where  A_{ij} = 1$ if there is an edge between nodes $ i$ and $ j$, and $ A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $ X$**:
+  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
+- **Input Feature Matrix $X$**:
   - Represents node features where each row corresponds to a node and each column corresponds to a feature.
 
 ### Step 2: Initialization
@@ -29,8 +29,8 @@ This is concise implementation of Graph Convolution Network (GCN) for educationa
   - Compute the normalized graph Laplacian: 
     - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
 - **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$: 
-    $$ H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)}) $$
+  - Compute the node representation matrix at layer $l+1$:
+    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
   - $\sigma$ is the activation function.
 
 ### Step 4: Loss Calculation
@@ -44,7 +44,7 @@ This is concise implementation of Graph Convolution Network (GCN) for educationa
   - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
 - **Parameter Update**:
   - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alph \frac{\partial L}{\partial W}$$
+    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
 
 ### Step 6: Training Loop
 - **Iteration**:

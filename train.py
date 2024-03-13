@@ -6,7 +6,7 @@ from GCN_scratch.model import GCN
 from GCN_scratch.utils import GraphUtils
 
 if __name__ == "__main__":
-    dataset = Planetoid(root='data/Cora', name='Cora')
+    dataset = Planetoid(root="data/Cora", name="Cora")
 
     # Get the data
     data = dataset[0]
@@ -46,8 +46,8 @@ if __name__ == "__main__":
     print("train finished")
 
     plt.plot(range(epochs), loss_list)
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.title('Loss Curve')
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.title("Loss Curve")
     plt.grid(True)  # Add grid lines for better readability
     plt.show()

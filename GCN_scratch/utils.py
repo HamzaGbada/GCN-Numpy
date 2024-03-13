@@ -44,10 +44,7 @@ class GraphUtils:
 
 
 if __name__ == "__main__":
-    adjacency_matrix = np.array([
-        [0, 1, 1, 0],
-        [1, 0, 1, 1],
-        [1, 1, 0, 1],
-        [0, 1, 1, 0]
-    ])
+    adjacency_matrix = np.array(
+        [[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 1], [0, 1, 1, 0]]
+    )
     print(GraphUtils.degree_matrix(adjacency_matrix))

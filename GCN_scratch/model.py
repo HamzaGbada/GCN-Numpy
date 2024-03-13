@@ -5,7 +5,6 @@ from GCN_scratch.utils import GraphUtils
 
 
 class GCN:
-
     def __init__(self, in_feat, hid_feat, out_feat, layers=1):
         self.init_layer = GCNLayer(in_feat, hid_feat)
         self.hidden_layer = GCNLayer(hid_feat, hid_feat)
@@ -18,11 +17,10 @@ class GCN:
             H = GraphUtils.ReLU(self.hidden_layer.forward(H, A))
         return GraphUtils.softmax(self.out_layer.forward(H, A))
 
-    def backward(self, y, y_hat, X: np.ndarray, A: np.ndarray, alpha=0.01):
+    def backward(self, y, y_hat, alpha=0.01):
         error = (y_hat - y) / y.shape[0]
         gradient_out = self.out_layer.backward(error, alpha)
         gradient_hid = self.hidden_layer.backward(error, alpha)
         gradient_init = self.init_layer.backward(error, alpha)
 
         return gradient_init, gradient_hid, gradient_out
-

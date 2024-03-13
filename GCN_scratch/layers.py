@@ -14,7 +14,7 @@ class GCNLayer:
         self.A = A
         self.X = X
         L = GraphUtils.normalized_graph_laplacien(A)
-        return np.dot(np.dot(L, X), self.weight) +self.bias
+        return np.dot(np.dot(L, X), self.weight) + self.bias
 
     def backward(self, error: np.ndarray, lr):
         L = GraphUtils.normalized_graph_laplacien(self.A)
@@ -26,5 +26,3 @@ class GCNLayer:
         self.weight -= lr * grad_weight
         self.bias -= lr * grad_bias
         return grad_input
-
-

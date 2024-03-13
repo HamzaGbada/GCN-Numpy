@@ -2,7 +2,7 @@
 
 ## About The Project
 
-This is concise implementation of Graph Convolution Network (GCN) for educational purpose using **Numpy** and **Networkx**.
+This is concise implementation of Graph Convolution Network (GCN) for educational purpose using **Numpy**.
 
 ## Built With
 

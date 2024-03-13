@@ -18,5 +18,11 @@ class GCN:
             H = GraphUtils.ReLU(self.hidden_layer.forward(H, A))
         return GraphUtils.softmax(self.out_layer.forward(H, A))
 
-    def backward(self):
-        pass
+    def backward(self, y, y_hat, X: np.ndarray, A: np.ndarray, alpha=0.01):
+        loss = GraphUtils.loss_function(y, y_hat)
+        feat = np.dot(X.T, A.T)
+        error = y_hat - y
+        gradient = np.dot(feat, error)/A.shape[0]
+        self.init_layer.weight = self.init_layer.weight - alpha * gradient
+        self.hidden_layer.weight = self.init_layer.weight - alpha * gradient
+        self.out_layer.weight = self.init_layer.weight - alpha * gradient

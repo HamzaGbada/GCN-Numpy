@@ -27,6 +27,7 @@ class GraphUtils:
         """Compute softmax values for each sets of scores in x."""
         exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
         return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+
     @staticmethod
     def loss_function(y: np.ndarray, y_hat: np.ndarray) -> np.float_:
         """
@@ -40,8 +41,6 @@ class GraphUtils:
             float: Cross-entropy loss
         """
         return -np.sum(np.dot(y, np.log(y_hat))) / y.shape[0]
-
-
 
 
 if __name__ == "__main__":

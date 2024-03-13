@@ -9,5 +9,5 @@ class GCNLayer:
 
     def forward(self, X: np.ndarray, A: np.ndarray):
         L = GraphUtils.normalized_graph_laplacien(A)
-        return GraphUtils.ReLU(np.dot(np.dot(L, X), self.weight))
+        return np.dot(np.dot(L, X), self.weight)
 

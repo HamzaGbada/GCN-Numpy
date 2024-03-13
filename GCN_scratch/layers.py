@@ -21,9 +21,6 @@ class GCNLayer:
         feat = np.dot(self.X.T, L)
         grad_weight = np.dot(feat, error)
         grad_bias = np.sum(error, axis=0, keepdims=True)
-        print(f"shape of L.T {L.T.shape}")
-        print(f"shape of self.weight.T {self.weight.T.shape}")
-        print(f"shape of error {error.shape}")
         grad_input = np.dot(L.T, np.dot(error, self.weight.T))
 
         self.weight -= lr * grad_weight

@@ -6,7 +6,7 @@ from GCN_scratch.utils import GraphUtils
 
 class GCN:
 
-    def __init__(self, in_feat, hid_feat, out_feat, layers=2):
+    def __init__(self, in_feat, hid_feat, out_feat, layers=1):
         self.init_layer = GCNLayer(in_feat, hid_feat)
         self.hidden_layer = GCNLayer(hid_feat, hid_feat)
         self.out_layer = GCNLayer(hid_feat, out_feat)
@@ -16,5 +16,7 @@ class GCN:
         H = GraphUtils.ReLU(self.init_layer.forward(X, A))
         for i in range(self.layers):
             H = GraphUtils.ReLU(self.hidden_layer.forward(H, A))
-        return
+        return GraphUtils.softmax(self.out_layer.forward(H, A))
 
+    def backward(self):
+        pass

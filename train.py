@@ -1,67 +1,53 @@
-from main import gcn_model, A_Laplacien, X, labels, graph
-from src.optimizer import Gradient_Descent_Optimizer
-from src.layers import Utils
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
+from torch_geometric.datasets import Planetoid
 
-# train and test split (Here I don't have any strategy of split it just a random) 0.6: Train and 0.4: Test
-train_nodes = np.random.randint(graph.number_of_nodes(), size=((graph.number_of_nodes() * 3) // 5))
-test_nodes = np.array([i for i in range(labels.shape[0]) if i not in train_nodes])
+from GCN_scratch.model import GCN
+from GCN_scratch.utils import GraphUtils
 
-# optimizer params
-optimizer = Gradient_Descent_Optimizer(alpha=2e-2, w=2.5e-2)
+if __name__ == "__main__":
+    dataset = Planetoid(root="data/Cora", name="Cora")
 
-embeds = list()
-accuacy = list()
-train_losses = list()
-test_losses = list()
+    # Get the data
+    data = dataset[0]
 
-loss_min = 1e6
-early_stop_iters = 0
-early_stop = 30
-epochs = 500
+    # Extract the adjacency matrix
+    adj_matrix = np.zeros((data.num_nodes, data.num_nodes))
+    edge_index = data.edge_index.numpy()
+    adj_matrix[edge_index[0], edge_index[1]] = 1
+    adj_matrix[edge_index[1], edge_index[0]] = 1
 
-for epoch in range(epochs):
+    A = adj_matrix
+    X = data.x
+    y = data.y.numpy()
 
-    y_pred = gcn_model.forward(A_Laplacien, X)
+    # Get the number of unique labels
+    num_labels = len(np.unique(data.y))
 
-    optimizer(y_pred, labels, train_nodes)
+    # Convert labels to one-hot encoding
+    y = np.eye(num_labels)[y]
 
-    for layer in reversed(gcn_model.layers):
-        layer.backward(optimizer, update=True)
+    input_dim = X.shape[1]
+    hidden_dim = 16
+    output_dim = num_labels
+    epochs = 5
+    lr = 0.1
 
-    embeds.append(gcn_model.embedding(A_Laplacien, X))
-    acc = (np.argmax(y_pred, axis=1) == np.argmax(labels, axis=1))[
-        [i for i in range(labels.shape[0]) if i not in train_nodes]
-    ]
-    accuacy.append(acc.mean())
+    gcn = GCN(input_dim, hidden_dim, output_dim)
 
-    loss = Utils.xent(y_pred, labels)
-    loss_train = loss[train_nodes].mean()
-    loss_test = loss[test_nodes].mean()
+    loss_list = []
+    for epoch in range(epochs):
+        y_hat = gcn.forward(X, A)
 
-    train_losses.append(loss_train)
-    test_losses.append(loss_test)
+        loss = GraphUtils.loss_function(y, y_hat)
+        loss_list.append(loss)
+        print(f"the epoch {epoch+1}/{epochs} : \n The current Loss => {loss}")
+        gcn.backward(y, y_hat, alpha=lr)
+    print("train finished")
 
-    if loss_test <= loss_min:
-        loss_min = loss_test
-        early_stop_iters = 0
-    else:
-        early_stop_iters += 1
-
-    if early_stop_iters > early_stop:
-        print("Early Stop")
-        break
-    print(f"CurrentEpoch: {epoch}, Training Loss: {loss_train:.5f}, Testing Loss: {loss_test:.5f}")
-
-train_losses = np.array(train_losses)
-test_losses = np.array(test_losses)
-
-# Plot train and test losses
-fig, ax = plt.subplots()
-ax.plot(np.log10(train_losses), label='Train')
-ax.plot(np.log10(test_losses), label='Test')
-ax.plot(accuacy, label='Accuracy')
-ax.legend()
-ax.grid()
-plt.show()
+    plt.plot(range(epochs), loss_list)
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.title("Loss Curve")
+    plt.grid(True)  # Add grid lines for better readability
+    plt.show()

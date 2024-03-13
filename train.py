@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from torch_geometric.datasets import Planetoid
 
 from GCN_scratch.model import GCN
@@ -16,7 +17,6 @@ if __name__ == "__main__":
     adj_matrix[edge_index[0], edge_index[1]] = 1
     adj_matrix[edge_index[1], edge_index[0]] = 1
 
-    # Convert to a sparse matrix
     A = adj_matrix
     X = data.x
     y = data.y.numpy()
@@ -26,12 +26,11 @@ if __name__ == "__main__":
 
     # Convert labels to one-hot encoding
     y = np.eye(num_labels)[y]
-    print(f"the node label {y}, the node label shape {y.shape},the number of node {data.num_nodes}")
 
     input_dim = X.shape[1]
-    hidden_dim = 16  # Choose the size of the hidden layer
+    hidden_dim = 16
     output_dim = num_labels
-    epochs = 10
+    epochs = 5
     lr = 0.1
 
     gcn = GCN(input_dim, hidden_dim, output_dim)
@@ -45,3 +44,10 @@ if __name__ == "__main__":
         print(f"the epoch {epoch+1}/{epochs} : \n The current Loss => {loss}")
         gcn.backward(y, y_hat, alpha=lr)
     print("train finished")
+
+    plt.plot(range(epochs), loss_list)
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.title('Loss Curve')
+    plt.grid(True)  # Add grid lines for better readability
+    plt.show()

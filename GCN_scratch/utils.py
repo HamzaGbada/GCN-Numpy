@@ -22,6 +22,12 @@ class GraphUtils:
     def ReLU(x):
         return x * (x > 0)
 
+    @staticmethod
+    def softmax(x):
+        """Compute softmax values for each sets of scores in x."""
+        exp_x = np.exp(x - np.max(x, axis=-1, keepdims=True))
+        return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
+
 if __name__ == "__main__":
     adjacency_matrix = np.array([
         [0, 1, 1, 0],

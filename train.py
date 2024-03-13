@@ -1,6 +1,5 @@
 import numpy as np
-from dgl.data import CoraGraphDataset
-from torch_geometric.datasets import KarateClub, Planetoid
+from torch_geometric.datasets import Planetoid
 
 from GCN_scratch.model import GCN
 from GCN_scratch.utils import GraphUtils

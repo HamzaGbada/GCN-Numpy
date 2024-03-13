@@ -20,7 +20,7 @@ class GCN:
     def backward(self, y, y_hat, alpha=0.01):
         error = (y_hat - y) / y.shape[0]
         gradient_out = self.out_layer.backward(error, alpha)
-        gradient_hid = self.hidden_layer.backward(error, alpha)
-        gradient_init = self.init_layer.backward(error, alpha)
+        gradient_hid = self.hidden_layer.backward(gradient_out, alpha)
+        gradient_init = self.init_layer.backward(gradient_hid, alpha)
 
         return gradient_init, gradient_hid, gradient_out

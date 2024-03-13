@@ -40,4 +40,5 @@ class GraphUtils:
             Returns:
             float: Cross-entropy loss
         """
-        return -np.sum(y * np.log(y_hat)) / y.shape[0]
+        return -np.mean(np.sum(y * np.log(y_hat + 1e-8), axis=1))
+        # return -np.sum(y * np.log(y_hat)) / y.shape[0]

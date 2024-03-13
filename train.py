@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     input_dim = X.shape[1]
     hidden_dim = 16  # Choose the size of the hidden layer
-    output_dim = np.unique(y).shape[0]
+    output_dim = num_labels
     epochs = 10
     lr = 0.1
 

@@ -41,10 +41,3 @@ class GraphUtils:
             float: Cross-entropy loss
         """
         return -np.sum(np.dot(y, np.log(y_hat))) / y.shape[0]
-
-
-if __name__ == "__main__":
-    adjacency_matrix = np.array(
-        [[0, 1, 1, 0], [1, 0, 1, 1], [1, 1, 0, 1], [0, 1, 1, 0]]
-    )
-    print(GraphUtils.degree_matrix(adjacency_matrix))

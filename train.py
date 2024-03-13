@@ -18,9 +18,7 @@ if __name__ == "__main__":
 
     # Convert to a sparse matrix
     A = adj_matrix
-    print(f"the adjancy matrix {A}")
     X = data.x
-    print(f"the node feature {X.shape}, the number of node {data.num_nodes}")
     y = data.y.numpy()
 
     # Get the number of unique labels

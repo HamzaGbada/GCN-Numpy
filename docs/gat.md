@@ -4,46 +4,139 @@
 
 This is concise implementation of Graph Attention Network (GAT) for educational purpose using **Numpy**.
 
+
 ## Required theory
 
-
 ### Step 1: Data Representation
-- **Adjacency Matrix $A$**:
-  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $X$**:
-  - Represents node features where each row corresponds to a node and each column corresponds to a feature.
+
+* **Adjacency Matrix $A )**:
+
+  * Represents the graph structure where
+    $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
+  * Self-loops are added:
+    $$
+    \tilde{A} = A + I
+    $$
+
+* **Input Feature Matrix $X$**:
+
+  * Represents node features where each row corresponds to a node and each column corresponds to a feature.
+
+---
 
 ### Step 2: Initialization
-- **Weight Matrices $W^{(l)}$**:
-  - Initialize weight matrices for each layer $l$ of the GCN.
-- **Bias Vectors $b^{(l)}$** (optional):
-  - Optionally, initialize bias vectors for each layer.
+
+* **Weight Matrix $W^{(l)}$**:
+
+  * Initialized for each GAT layer $l$.
+  * Typically initialized using Xavier/Glorot initialization:
+    $$
+    W^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{F_{in}+F_{out}}}, \sqrt{\frac{6}{F_{in}+F_{out}}}\right)
+    $$
+
+* **Attention Weight Vector $a^{(l)}$**:
+
+  * Learnable vector used to compute attention coefficients.
+  * Initialized randomly (Xavier initialization recommended):
+    $$
+    a^{(l)} \in \mathbb{R}^{2F_{out}}, \quad
+    a^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{2F_{out}}}, \sqrt{\frac{6}{2F_{out}}}\right)
+    $$
+
+* **Bias Vector $b^{(l)}$** (optional):
+
+  * Initialized to zeros.
+
+---
 
 ### Step 3: Forward Propagation
-- **Normalized Graph Laplacian $\tilde{L}$**:
-  - Compute the normalized graph Laplacian: 
-    - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
-- **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$:
-    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
-  - $\sigma$ is the activation function.
+
+#### 3.1 Linear Feature Transformation
+
+* Transform input features:
+  $$
+  H^{(l)} = X^{(l)} W^{(l)}
+  $$
+
+---
+
+#### 3.2 Attention Score Computation
+
+* For each edge ( (i, j) ) where ( \tilde{A}*{ij} = 1 ), compute:
+  $$
+  e_{ij}^{(l)} =
+  \text{LeakyReLU}
+  \left(
+  {a^{(l)}}^T
+  \left[
+  h_i^{(l)} , || , h_j^{(l)}
+  \right]
+  \right)
+  $$
+
+---
+
+#### 3.3 Attention Coefficient Normalization
+
+* Normalize attention scores across neighbors:
+  $$
+  \alpha_{ij}^{(l)} =
+  \frac{\exp(e_{ij}^{(l)})}
+  {\sum_{k \in \mathcal{N}(i)} \exp(e_{ik}^{(l)})}
+  $$
+
+---
+
+#### 3.4 Feature Aggregation
+
+* Aggregate neighbor features:
+  $$
+  H^{(l+1)} =
+  \sigma
+  \left(
+  \sum_{j \in \mathcal{N}(i)}
+  \alpha_{ij}^{(l)} h_j^{(l)}
+  \right)
+  $$
+
+* $\sigma$ denotes a non-linear activation function (e.g., ELU or ReLU).
+
+---
 
 ### Step 4: Loss Calculation
-- **Loss Function**:
-  - Compute the loss function for node classification (which is our case, we used Categorical Cross-Entropy):
-    - $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{C} Y_{ij} \log(\hat{Y}_{ij})$$
+
+* **Categorical Cross-Entropy Loss** (node classification):
+  $$
+  L =
+  -\frac{1}{N}
+  \sum_{i=1}^{N}
+  \sum_{c=1}^{C}
+  Y_{ic} \log(\hat{Y}_{ic})
+  $$
+
+---
 
 ### Step 5: Backpropagation
-- **Gradient Computation**:
-  - Compute the gradients of the loss function with respect to the model parameters using backpropagation.
-  - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
-- **Parameter Update**:
-  - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
+
+* **Gradient Computation**:
+
+  * Gradients are computed w.r.t:
+
+    * Weight matrices $W^{(l)}$
+    * Attention vectors $a^{(l)}$
+
+* **Parameter Update**:
+  $$
+  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
+  $$
+
+---
 
 ### Step 6: Training Loop
-- **Iteration**:
-  - Repeat steps 3-5 iteratively until convergence or for a fixed number of epochs.
+
+* Repeat steps 3–5 for a fixed number of epochs or until convergence.
+
+
 
 
 ## References

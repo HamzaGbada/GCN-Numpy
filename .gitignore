@@ -2,3 +2,6 @@
 .idea/
 jupyter-notebook/
 /data/
+/.venv/
+/GNN_Numpy.egg-info/
+/uv.lock

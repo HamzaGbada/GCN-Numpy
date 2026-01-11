@@ -58,9 +58,13 @@ This is concise implementation of Graph Convolution Network (GCN) for educationa
    ```
 2. Install the requirement libraries
    ```sh
-   $ pip install -r requirements.txt
+   $ uv sync
    ```
-3. Train
+3. activate the virtual environment
+   ```sh
+   $ source .venv/bin/activate
+   ```
+4. Train
     ```shell script
     $ python train.py
     ```

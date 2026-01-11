@@ -29,7 +29,7 @@ class GraphUtils:
         return exp_x / np.sum(exp_x, axis=-1, keepdims=True)
 
     @staticmethod
-    def loss_function(y: np.ndarray, y_hat: np.ndarray) -> np.float_:
+    def loss_function(y: np.ndarray, y_hat: np.ndarray) -> np.float64:
         """
         Compute the cross-entropy loss.
 

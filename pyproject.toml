@@ -1,0 +1,42 @@
+[project]
+name = "GNN-Numpy"
+version = "0.2.0"
+description = "This is concise implementation of some Graph Neural Networks (GNN) varients for educational purpose using only Numpy."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+keywords = ["GCN", "Numpy", "Graph Neural Network"]
+
+authors = [
+    {name = "Hamza Gbada", email = "hamza.gbada@gmail.com"},
+]
+
+dependencies = [
+    "numpy>=1.26.4",
+    "torch",
+    "torch_geometric",
+    "matplotlib",
+]
+
+
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["GCN_scratch"]
+
+# ---------------------
+# uv configuration
+# ---------------------
+[tool.uv.sources]
+torch = { index = "pytorch" }
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true # to ensure that torch is installed from the pytorch index, but all other packages are installed from PyPI, add the following to your pyproject.toml
+
+

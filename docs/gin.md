@@ -21,7 +21,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
   * Initial node representations:
     $$H^{(0)} = X$$
 
----
 
 ### Step 2: Initialization
 
@@ -39,7 +38,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
     * Fixed $\varepsilon = 0$
     * Learnable $\varepsilon^{(l)}$, initialized to 0
 
----
 
 ### Step 3: Forward Propagation
 
@@ -54,7 +52,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
   $$s_i^{(l)} =
   (1 + \varepsilon^{(l)}) h_i^{(l)} + m_i^{(l)}$$
 
----
 
 #### 3.2 Node Update (MLP)
 
@@ -69,7 +66,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
   (1 + \varepsilon^{(l)}) H^{(l)} + \tilde{A} H^{(l)}
   \right)$$
 
----
 
 ### Step 4: Loss Calculation
 
@@ -80,7 +76,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
   \sum_{c=1}^{C}
   Y_{ic} \log(\hat{Y}_{ic})$$
 
----
 
 ### Step 5: Backpropagation
 
@@ -94,7 +89,6 @@ This is concise implementation of Graph Isomorphism Network (GIN) for educationa
 * **Parameter Update**:
   $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
----
 
 ### Step 6: Training Loop
 

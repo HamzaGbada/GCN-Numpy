@@ -11,7 +11,6 @@ The goal is **not performance**, but **understanding**:
 * Clear correspondence between theory and code
 * Unified view through the **Message Passing Neural Network (MPNN)** framework
 
----
 
 ## Implemented Models
 

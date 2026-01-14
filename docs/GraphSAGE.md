@@ -21,7 +21,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
   * Initial node representations:
     $$H^{(0)} = X$$
 
----
 
 ### Step 2: Initialization
 
@@ -47,7 +46,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
     * Max
   * (Mean aggregation is most common and simplest for NumPy.)
 
----
 
 ### Step 3: Forward Propagation
 
@@ -57,7 +55,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
   $$\mathcal{S}(i) \subseteq \mathcal{N}(i)$$
 * In a full NumPy implementation, all neighbors are typically used.
 
----
 
 #### 3.2 Neighbor Aggregation
 
@@ -73,7 +70,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
   \frac{1}{|\mathcal{S}(i)|}
   \sum_{j \in \mathcal{S}(i)} h_j^{(l)}$$
 
----
 
 #### 3.3 Node Update
 
@@ -101,7 +97,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
 
 * $||$ denotes concatenation.
 
----
 
 #### 3.4 (Optional) Normalization
 
@@ -109,7 +104,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
   $$h_i^{(l+1)} \leftarrow
   \frac{h_i^{(l+1)}}{|h_i^{(l+1)}|_2}$$
 
----
 
 ### Step 4: Loss Calculation
 
@@ -120,7 +114,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
   \sum_{c=1}^{C}
   Y_{ic} \log(\hat{Y}_{ic})$$
 
----
 
 ### Step 5: Backpropagation
 
@@ -134,7 +127,6 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
 * **Parameter Update**:
   $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
----
 
 ### Step 6: Training Loop
 

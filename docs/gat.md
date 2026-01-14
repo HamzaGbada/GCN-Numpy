@@ -4,7 +4,6 @@
 
 This is concise implementation of Graph Attention Network (GAT) for educational purpose using **Numpy**.
 
-
 ## Required theory
 
 ### Step 1: Data Representation
@@ -19,8 +18,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 * **Input Feature Matrix $X$**:
 
   * Represents node features where each row corresponds to a node and each column corresponds to a feature.
-
----
 
 ### Step 2: Initialization
 
@@ -41,7 +38,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 
   * Initialized to zeros.
 
----
 
 ### Step 3: Forward Propagation
 
@@ -50,7 +46,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 * Transform input features:
   $$H^{(l)} = X^{(l)} W^{(l)}$$
 
----
 
 #### 3.2 Attention Score Computation
 
@@ -64,7 +59,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
   \right]
   \right)$$
 
----
 
 #### 3.3 Attention Coefficient Normalization
 
@@ -73,7 +67,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
   \frac{\exp(e_{ij}^{(l)})}
   {\sum_{k \in \mathcal{N}(i)} \exp(e_{ik}^{(l)})}$$
 
----
 
 #### 3.4 Feature Aggregation
 
@@ -87,7 +80,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 
 * $\sigma$ denotes a non-linear activation function (e.g., ELU or ReLU).
 
----
 
 ### Step 4: Loss Calculation
 
@@ -98,7 +90,6 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
   \sum_{c=1}^{C}
   Y_{ic} \log(\hat{Y}_{ic})$$
 
----
 
 ### Step 5: Backpropagation
 
@@ -112,12 +103,11 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 * **Parameter Update**:
   $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
----
+
 
 ### Step 6: Training Loop
 
 * Repeat steps 3–5 for a fixed number of epochs or until convergence.
-
 
 
 

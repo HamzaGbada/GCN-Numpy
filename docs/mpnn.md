@@ -26,8 +26,6 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 
   * Represents edge attributes (if available), indexed by $(i, j)$.
 
----
-
 ### Step 2: Initialization
 
 * **Message Function Parameters $\theta_M^{(l)}$**:
@@ -45,7 +43,6 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 
   * Initialized to zero.
 
----
 
 ### Step 3: Forward Propagation
 
@@ -61,7 +58,6 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 * In a simple NumPy implementation (no edge features):
   $$m_{ij}^{(l)} = W_M^{(l)} h_j^{(l)}$$
 
----
 
 #### 3.2 Message Aggregation
 
@@ -71,7 +67,6 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 
 * Other aggregators (mean, max) are also possible.
 
----
 
 #### 3.3 Node State Update
 
@@ -105,7 +100,6 @@ b^{(l)}
    b^{(l)}
     \right)$$
 
----
 
 ### Step 4: Readout (Optional, Graph-Level Tasks)
 
@@ -113,7 +107,6 @@ b^{(l)}
   $$h_G = \text{READOUT}({ h_i^{(L)} })$$
 * Common readout functions: sum, mean, max.
 
----
 
 ### Step 5: Loss Calculation
 
@@ -124,7 +117,6 @@ b^{(l)}
   \sum_{c=1}^{C}
   Y_{ic} \log(\hat{Y}_{ic})$$
 
----
 
 ### Step 6: Backpropagation
 
@@ -138,7 +130,6 @@ b^{(l)}
 * **Parameter Update**:
   $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
----
 
 ### Step 7: Training Loop
 

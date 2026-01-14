@@ -127,7 +127,9 @@ Each GNN defines:
 * **Aggregation**: mean / max / sum
 
 * **Update**
-  $$h_i^{(l+1)} = \sigma \left(W \begin{bmatrix} h_i^{(l)} \\ \text{AGG}(\mathcal{N}(i)) \end{bmatrix} \right)$$
+
+[//]: # (  $$h_i^{&#40;l+1&#41;} = \sigma \left&#40;W \begin{bmatrix} h_i^{&#40;l&#41;} \\ \text{AGG}&#40;\mathcal{N}&#40;i&#41;&#41; \end{bmatrix} \right&#41;$$)
+  ![equation](https://render.githubusercontent.com/render/math?math=h_i^{(l+1)}=\sigma\left(W\begin{bmatrix}h_i^{(l)}\ \text{AGG}(\mathcal{N}(i))\end{bmatrix}\right))
 
 ➡ Inductive and scalable to unseen nodes
 

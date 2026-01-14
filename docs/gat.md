@@ -14,9 +14,7 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
   * Represents the graph structure where
     $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
   * Self-loops are added:
-    $$
-    \tilde{A} = A + I
-    $$
+    $$\tilde{A} = A + I$$
 
 * **Input Feature Matrix $X$**:
 
@@ -30,18 +28,14 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 
   * Initialized for each GAT layer $l$.
   * Typically initialized using Xavier/Glorot initialization:
-    $$
-    W^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{F_{in}+F_{out}}}, \sqrt{\frac{6}{F_{in}+F_{out}}}\right)
-    $$
+    $$W^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{F_{in}+F_{out}}}, \sqrt{\frac{6}{F_{in}+F_{out}}}\right)$$
 
 * **Attention Weight Vector $a^{(l)}$**:
 
   * Learnable vector used to compute attention coefficients.
   * Initialized randomly (Xavier initialization recommended):
-    $$
-    a^{(l)} \in \mathbb{R}^{2F_{out}}, \quad
-    a^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{2F_{out}}}, \sqrt{\frac{6}{2F_{out}}}\right)
-    $$
+    $$a^{(l)} \in \mathbb{R}^{2F_{out}}, \quad
+    a^{(l)} \sim \mathcal{U}\left(-\sqrt{\frac{6}{2F_{out}}}, \sqrt{\frac{6}{2F_{out}}}\right)$$
 
 * **Bias Vector $b^{(l)}$** (optional):
 
@@ -54,50 +48,42 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 #### 3.1 Linear Feature Transformation
 
 * Transform input features:
-  $$
-  H^{(l)} = X^{(l)} W^{(l)}
-  $$
+  $$H^{(l)} = X^{(l)} W^{(l)}$$
 
 ---
 
 #### 3.2 Attention Score Computation
 
 * For each edge ( (i, j) ) where ( \tilde{A}*{ij} = 1 ), compute:
-  $$
-  e_{ij}^{(l)} =
+  $$e_{ij}^{(l)} =
   \text{LeakyReLU}
   \left(
   {a^{(l)}}^T
   \left[
   h_i^{(l)} , || , h_j^{(l)}
   \right]
-  \right)
-  $$
+  \right)$$
 
 ---
 
 #### 3.3 Attention Coefficient Normalization
 
 * Normalize attention scores across neighbors:
-  $$
-  \alpha_{ij}^{(l)} =
+  $$\alpha_{ij}^{(l)} =
   \frac{\exp(e_{ij}^{(l)})}
-  {\sum_{k \in \mathcal{N}(i)} \exp(e_{ik}^{(l)})}
-  $$
+  {\sum_{k \in \mathcal{N}(i)} \exp(e_{ik}^{(l)})}$$
 
 ---
 
 #### 3.4 Feature Aggregation
 
 * Aggregate neighbor features:
-  $$
-  H^{(l+1)} =
+  $$H^{(l+1)} =
   \sigma
   \left(
   \sum_{j \in \mathcal{N}(i)}
   \alpha_{ij}^{(l)} h_j^{(l)}
-  \right)
-  $$
+  \right)$$
 
 * $\sigma$ denotes a non-linear activation function (e.g., ELU or ReLU).
 
@@ -106,13 +92,11 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 ### Step 4: Loss Calculation
 
 * **Categorical Cross-Entropy Loss** (node classification):
-  $$
-  L =
+  $$L =
   -\frac{1}{N}
   \sum_{i=1}^{N}
   \sum_{c=1}^{C}
-  Y_{ic} \log(\hat{Y}_{ic})
-  $$
+  Y_{ic} \log(\hat{Y}_{ic})$$
 
 ---
 
@@ -126,9 +110,7 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
     * Attention vectors $a^{(l)}$
 
 * **Parameter Update**:
-  $$
-  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
-  $$
+  $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
 ---
 

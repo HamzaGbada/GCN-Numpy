@@ -14,17 +14,13 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
   * Represents the graph structure where
     $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
   * Defines the neighborhood:
-    $$
-    \mathcal{N}(i) = { j \mid A_{ij} = 1 }
-    $$
+    $$\mathcal{N}(i) = { j \mid A_{ij} = 1 }$$
 
 * **Input Feature Matrix $X$**:
 
   * Node feature matrix where each row corresponds to a node and each column corresponds to a feature.
   * Initial node states:
-    $$
-    H^{(0)} = X
-    $$
+    $$H^{(0)} = X$$
 
 * **(Optional) Edge Feature Matrix $E$**:
 
@@ -56,28 +52,22 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 #### 3.1 Message Computation
 
 * For each node $i$ and neighbor $j$, compute messages:
-  $$
-  m_{ij}^{(l)} =
+  $$m_{ij}^{(l)} =
   M^{(l)}
   \left(
   h_i^{(l)}, h_j^{(l)}, e_{ij}
-  \right)
-  $$
+  \right)$$
 
 * In a simple NumPy implementation (no edge features):
-  $$
-  m_{ij}^{(l)} = W_M^{(l)} h_j^{(l)}
-  $$
+  $$m_{ij}^{(l)} = W_M^{(l)} h_j^{(l)}$$
 
 ---
 
 #### 3.2 Message Aggregation
 
 * Aggregate incoming messages:
-  $$
-  m_i^{(l)} =
-  \sum_{j \in \mathcal{N}(i)} m_{ij}^{(l)}
-  $$
+  $$m_i^{(l)} =
+  \sum_{j \in \mathcal{N}(i)} m_{ij}^{(l)}$$
 
 * Other aggregators (mean, max) are also possible.
 
@@ -86,17 +76,14 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
 #### 3.3 Node State Update
 
 * Update node representations:
-  $$
-  h_i^{(l+1)} =
+  $$h_i^{(l+1)} =
   U^{(l)}
   \left(
   h_i^{(l)}, m_i^{(l)}
-  \right)
-  $$
+  \right)$$
 
 * Simple update function:
-  $$
-  h_i^{(l+1)} =
+  $$h_i^{(l+1)} =
   \sigma
   \left(
   W_U^{(l)}
@@ -105,12 +92,10 @@ This is concise implementation of Message Passing Neural Network (MPNN) for educ
   m_i^{(l)}
   \end{bmatrix}
 b^{(l)}
-    \right)
-    $$
+    \right)$$
 
 * In matrix form:
-  $$
-  H^{(l+1)} =
+  $$H^{(l+1)} =
   \sigma
   \left(
   W_U^{(l)}
@@ -118,17 +103,14 @@ b^{(l)}
   H^{(l)} || A H^{(l)}
   \right]
    b^{(l)}
-    \right)
-    $$
+    \right)$$
 
 ---
 
 ### Step 4: Readout (Optional, Graph-Level Tasks)
 
 * For graph-level prediction, aggregate node embeddings:
-  $$
-  h_G = \text{READOUT}({ h_i^{(L)} })
-  $$
+  $$h_G = \text{READOUT}({ h_i^{(L)} })$$
 * Common readout functions: sum, mean, max.
 
 ---
@@ -136,13 +118,11 @@ b^{(l)}
 ### Step 5: Loss Calculation
 
 * **Categorical Cross-Entropy Loss** (node classification):
-  $$
-  L =
+  $$L =
   -\frac{1}{N}
   \sum_{i=1}^{N}
   \sum_{c=1}^{C}
-  Y_{ic} \log(\hat{Y}_{ic})
-  $$
+  Y_{ic} \log(\hat{Y}_{ic})$$
 
 ---
 
@@ -156,9 +136,7 @@ b^{(l)}
     * Update function parameters $\theta_U^{(l)}$
 
 * **Parameter Update**:
-  $$
-  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
-  $$
+  $$\theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}$$
 
 ---
 

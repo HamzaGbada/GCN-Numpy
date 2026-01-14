@@ -49,13 +49,13 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 
 #### 3.2 Attention Score Computation
 
-* For each edge ( (i, j) ) where ( \tilde{A}*{ij} = 1 ), compute:
+* For each edge $(i, j)$ where $\tilde{A}_{ij} = 1$, compute:
   $$e_{ij}^{(l)} =
   \text{LeakyReLU}
   \left(
   {a^{(l)}}^T
   \left[
-  h_i^{(l)} , || , h_j^{(l)}
+  h_i^{(l)} || h_j^{(l)}
   \right]
   \right)$$
 

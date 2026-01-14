@@ -2,8 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from torch_geometric.datasets import Planetoid
 
-from GCN_scratch.model import GCN
-from GCN_scratch.utils import GraphUtils
+from core.GCN_scratch.model import GCN
+from core.utils import GraphUtils
 
 if __name__ == "__main__":
     dataset = Planetoid(root="data/Cora", name="Cora")

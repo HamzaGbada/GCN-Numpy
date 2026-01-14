@@ -1,7 +1,7 @@
 import numpy as np
 
-from GCN_scratch.layers import GCNLayer
-from GCN_scratch.utils import GraphUtils
+from core.GCN_scratch.layers import GCNLayer
+from core.utils import GraphUtils
 
 
 class GCN:

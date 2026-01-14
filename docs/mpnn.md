@@ -4,47 +4,167 @@
 
 This is concise implementation of Message Passing Neural Network (MPNN) for educational purpose using **Numpy**.
 
+
 ## Required theory
 
-
 ### Step 1: Data Representation
-- **Adjacency Matrix $A$**:
-  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $X$**:
-  - Represents node features where each row corresponds to a node and each column corresponds to a feature.
+
+* **Adjacency Matrix $A$**:
+
+  * Represents the graph structure where
+    $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
+  * Defines the neighborhood:
+    $$
+    \mathcal{N}(i) = { j \mid A_{ij} = 1 }
+    $$
+
+* **Input Feature Matrix $X$**:
+
+  * Node feature matrix where each row corresponds to a node and each column corresponds to a feature.
+  * Initial node states:
+    $$
+    H^{(0)} = X
+    $$
+
+* **(Optional) Edge Feature Matrix $E$**:
+
+  * Represents edge attributes (if available), indexed by $(i, j)$.
+
+---
 
 ### Step 2: Initialization
-- **Weight Matrices $W^{(l)}$**:
-  - Initialize weight matrices for each layer $l$ of the GCN.
-- **Bias Vectors $b^{(l)}$** (optional):
-  - Optionally, initialize bias vectors for each layer.
+
+* **Message Function Parameters $\theta_M^{(l)}$**:
+
+  * Parameters of the message function $M^{(l)}$.
+  * Typically implemented as a linear layer or small MLP.
+  * Initialized using Xavier/Glorot initialization.
+
+* **Update Function Parameters $\theta_U^{(l)}$**:
+
+  * Parameters of the node update function $U^{(l)}$.
+  * Can be a linear layer, MLP, or gated unit (e.g., GRU).
+
+* **Bias Vectors** (optional):
+
+  * Initialized to zero.
+
+---
 
 ### Step 3: Forward Propagation
-- **Normalized Graph Laplacian $\tilde{L}$**:
-  - Compute the normalized graph Laplacian: 
-    - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
-- **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$:
-    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
-  - $\sigma$ is the activation function.
 
-### Step 4: Loss Calculation
-- **Loss Function**:
-  - Compute the loss function for node classification (which is our case, we used Categorical Cross-Entropy):
-    - $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{C} Y_{ij} \log(\hat{Y}_{ij})$$
+#### 3.1 Message Computation
 
-### Step 5: Backpropagation
-- **Gradient Computation**:
-  - Compute the gradients of the loss function with respect to the model parameters using backpropagation.
-  - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
-- **Parameter Update**:
-  - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
+* For each node $i$ and neighbor $j$, compute messages:
+  $$
+  m_{ij}^{(l)} =
+  M^{(l)}
+  \left(
+  h_i^{(l)}, h_j^{(l)}, e_{ij}
+  \right)
+  $$
 
-### Step 6: Training Loop
-- **Iteration**:
-  - Repeat steps 3-5 iteratively until convergence or for a fixed number of epochs.
+* In a simple NumPy implementation (no edge features):
+  $$
+  m_{ij}^{(l)} = W_M^{(l)} h_j^{(l)}
+  $$
 
+---
+
+#### 3.2 Message Aggregation
+
+* Aggregate incoming messages:
+  $$
+  m_i^{(l)} =
+  \sum_{j \in \mathcal{N}(i)} m_{ij}^{(l)}
+  $$
+
+* Other aggregators (mean, max) are also possible.
+
+---
+
+#### 3.3 Node State Update
+
+* Update node representations:
+  $$
+  h_i^{(l+1)} =
+  U^{(l)}
+  \left(
+  h_i^{(l)}, m_i^{(l)}
+  \right)
+  $$
+
+* Simple update function:
+  $$
+  h_i^{(l+1)} =
+  \sigma
+  \left(
+  W_U^{(l)}
+  \begin{bmatrix}
+  h_i^{(l)} \\
+  m_i^{(l)}
+  \end{bmatrix}
+b^{(l)}
+    \right)
+    $$
+
+* In matrix form:
+  $$
+  H^{(l+1)} =
+  \sigma
+  \left(
+  W_U^{(l)}
+  \left[
+  H^{(l)} || A H^{(l)}
+  \right]
+   b^{(l)}
+    \right)
+    $$
+
+---
+
+### Step 4: Readout (Optional, Graph-Level Tasks)
+
+* For graph-level prediction, aggregate node embeddings:
+  $$
+  h_G = \text{READOUT}({ h_i^{(L)} })
+  $$
+* Common readout functions: sum, mean, max.
+
+---
+
+### Step 5: Loss Calculation
+
+* **Categorical Cross-Entropy Loss** (node classification):
+  $$
+  L =
+  -\frac{1}{N}
+  \sum_{i=1}^{N}
+  \sum_{c=1}^{C}
+  Y_{ic} \log(\hat{Y}_{ic})
+  $$
+
+---
+
+### Step 6: Backpropagation
+
+* **Gradient Computation**:
+
+  * Gradients are computed with respect to:
+
+    * Message function parameters $\theta_M^{(l)}$
+    * Update function parameters $\theta_U^{(l)}$
+
+* **Parameter Update**:
+  $$
+  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
+  $$
+
+---
+
+### Step 7: Training Loop
+
+* Repeat steps **3–6** for a fixed number of epochs or until convergence.
 
 ## References
 

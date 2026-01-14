@@ -9,7 +9,7 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 
 ### Step 1: Data Representation
 
-* **Adjacency Matrix $A )**:
+* **Adjacency Matrix $A$**:
 
   * Represents the graph structure where
     $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.

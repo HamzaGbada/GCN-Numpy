@@ -4,46 +4,119 @@
 
 This is concise implementation of Graph Isomorphism Network (GIN) for educational purpose using **Numpy**.
 
-## Required theory
-
+## Required theory 
 
 ### Step 1: Data Representation
-- **Adjacency Matrix $A$**:
-  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $X$**:
-  - Represents node features where each row corresponds to a node and each column corresponds to a feature.
+
+* **Adjacency Matrix $A$**:
+
+  * Represents the graph structure where
+    $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
+  * Self-loops are added:
+    $$
+    \tilde{A} = A + I
+    $$
+
+* **Input Feature Matrix $X$**:
+
+  * Node feature matrix where each row corresponds to a node and each column corresponds to a feature.
+  * Initial node representations:
+    $$
+    H^{(0)} = X
+    $$
+
+---
 
 ### Step 2: Initialization
-- **Weight Matrices $W^{(l)}$**:
-  - Initialize weight matrices for each layer $l$ of the GCN.
-- **Bias Vectors $b^{(l)}$** (optional):
-  - Optionally, initialize bias vectors for each layer.
+
+* **MLP Parameters $\text{MLP}^{(l)}$**:
+
+  * Each GIN layer uses a Multi-Layer Perceptron (MLP) instead of a single linear transformation.
+  * The MLP parameters (weights and biases) are initialized using standard methods (e.g., Xavier initialization).
+
+* **Epsilon Parameter $\varepsilon^{(l)}$**:
+
+  * A learnable or fixed scalar controlling the importance of the central node:
+    $$
+    \varepsilon^{(l)} \in \mathbb{R}
+    $$
+  * Common choices:
+
+    * Fixed $\varepsilon = 0$
+    * Learnable $\varepsilon^{(l)}$, initialized to 0
+
+---
 
 ### Step 3: Forward Propagation
-- **Normalized Graph Laplacian $\tilde{L}$**:
-  - Compute the normalized graph Laplacian: 
-    - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
-- **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$:
-    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
-  - $\sigma$ is the activation function.
+
+#### 3.1 Neighborhood Aggregation
+
+* Aggregate features from neighboring nodes using **sum aggregation**:
+  $$
+  m_i^{(l)} =
+  \sum_{j \in \mathcal{N}(i)}
+  h_j^{(l)}
+  $$
+
+* Add the central node contribution:
+  $$
+  s_i^{(l)} =
+  (1 + \varepsilon^{(l)}) h_i^{(l)} + m_i^{(l)}
+  $$
+
+---
+
+#### 3.2 Node Update (MLP)
+
+* Update node representations using an MLP:
+  $$
+  h_i^{(l+1)} =
+  \text{MLP}^{(l)} \left( s_i^{(l)} \right)
+  $$
+
+* In matrix form:
+  $$
+  H^{(l+1)} =
+  \text{MLP}^{(l)}
+  \left(
+  (1 + \varepsilon^{(l)}) H^{(l)} + \tilde{A} H^{(l)}
+  \right)
+  $$
+
+---
 
 ### Step 4: Loss Calculation
-- **Loss Function**:
-  - Compute the loss function for node classification (which is our case, we used Categorical Cross-Entropy):
-    - $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{C} Y_{ij} \log(\hat{Y}_{ij})$$
+
+* **Categorical Cross-Entropy Loss** (node classification):
+  $$
+  L =
+  -\frac{1}{N}
+  \sum_{i=1}^{N}
+  \sum_{c=1}^{C}
+  Y_{ic} \log(\hat{Y}_{ic})
+  $$
+
+---
 
 ### Step 5: Backpropagation
-- **Gradient Computation**:
-  - Compute the gradients of the loss function with respect to the model parameters using backpropagation.
-  - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
-- **Parameter Update**:
-  - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
+
+* **Gradient Computation**:
+
+  * Gradients are computed with respect to:
+
+    * MLP weights and biases
+    * $\varepsilon^{(l)}$ (if learnable)
+
+* **Parameter Update**:
+  $$
+  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
+  $$
+
+---
 
 ### Step 6: Training Loop
-- **Iteration**:
-  - Repeat steps 3-5 iteratively until convergence or for a fixed number of epochs.
+
+* Repeat steps **3–5** for a fixed number of epochs or until convergence.
 
 
 ## References

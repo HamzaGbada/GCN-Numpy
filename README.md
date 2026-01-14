@@ -1,80 +1,250 @@
-# GCN Numpy
+# GNN from Scratch with NumPy
 
-## About The Project
+**GCN · GAT · GIN · GraphSAGE · MPNN**
 
-This is concise implementation of Graph Convolution Network (GCN) for educational purpose using **Numpy**.
+This project provides **clean, educational, NumPy-only implementations** of major **Graph Neural Network (GNN)** architectures, implemented **from scratch** to expose their mathematical foundations.
 
-## Built With
+The goal is **not performance**, but **understanding**:
 
-* [Python](https://www.python.org/)
-* [Numpy](https://numpy.org/)
+* No PyTorch / PyG / DGL for modeling
+* Explicit matrix operations
+* Clear correspondence between theory and code
+* Unified view through the **Message Passing Neural Network (MPNN)** framework
 
-## Getting Started
+---
 
+## Implemented Models
 
-### Step 1: Data Representation
-- **Adjacency Matrix $A$**:
-  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $X$**:
-  - Represents node features where each row corresponds to a node and each column corresponds to a feature.
+* **GCN** — Graph Convolutional Network
+* **GAT** — Graph Attention Network
+* **GIN** — Graph Isomorphism Network
+* **GraphSAGE** — Sample & Aggregate
+* **MPNN** — Message Passing Neural Network (general framework)
 
-### Step 2: Initialization
-- **Weight Matrices $W^{(l)}$**:
-  - Initialize weight matrices for each layer $l$ of the GCN.
-- **Bias Vectors $b^{(l)}$** (optional):
-  - Optionally, initialize bias vectors for each layer.
+All models are trained and evaluated on **node classification tasks**.
 
-### Step 3: Forward Propagation
-- **Normalized Graph Laplacian $\tilde{L}$**:
-  - Compute the normalized graph Laplacian: 
-    - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
-- **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$:
-    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
-  - $\sigma$ is the activation function.
+---
 
-### Step 4: Loss Calculation
-- **Loss Function**:
-  - Compute the loss function for node classification (which is our case, we used Categorical Cross-Entropy):
-    - $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{C} Y_{ij} \log(\hat{Y}_{ij})$$
+## Project Structure
 
-### Step 5: Backpropagation
-- **Gradient Computation**:
-  - Compute the gradients of the loss function with respect to the model parameters using backpropagation.
-  - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
-- **Parameter Update**:
-  - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
+```text
+.
+├── data/                # Graph datasets (raw + processed)
+├── docs/                # Theory & math for each model
+│   ├── gcn.md
+│   ├── gat.md
+│   ├── gin.md
+│   ├── GraphSAGE.md
+│   └── mpnn.md
+├── GCN_scratch/         # NumPy implementation
+├── GAT_scratch/
+├── GIN_scratch/
+├── GraphSAGE_scratch/
+├── MPNN_scratch/
+├── train.py             # Training loop (node classification)
+├── pyproject.toml
+└── README.md
+```
 
-### Step 6: Training Loop
-- **Iteration**:
-  - Repeat steps 3-5 iteratively until convergence or for a fixed number of epochs.
+Each `docs/*.md` file contains the **exact mathematical formulation** used by the corresponding NumPy implementation.
 
-### Usage
+---
 
-1. Clone the repo
+## Unifying View: Message Passing Neural Networks (MPNN)
+
+All modern GNNs can be expressed as instances of the **MPNN framework** (Gilmer et al., 2017).
+
+### General MPNN Layer
+
+For each node $i$ at layer $l$:
+
+**Message**
+$$
+m_{ij}^{(l)} = M^{(l)}(h_i^{(l)}, h_j^{(l)}, e_{ij})
+$$
+
+**Aggregation**
+$$
+m_i^{(l)} = \sum_{j \in \mathcal{N}(i)} m_{ij}^{(l)}
+$$
+
+**Update**
+$$
+h_i^{(l+1)} = U^{(l)}(h_i^{(l)}, m_i^{(l)})
+$$
+
+Each GNN defines:
+
+* the **message function** $M$
+* the **aggregation operator**
+* the **update function** $U$
+
+---
+
+## Exact Mapping: GCN / GAT / GIN / GraphSAGE → MPNN
+
+### GCN as MPNN
+
+* **Message**
+  $$
+  m_{ij} = \frac{1}{\sqrt{d_i d_j}} W h_j
+  $$
+
+* **Aggregation**: normalized sum
+
+* **Update**
+  $$
+  h_i^{(l+1)} = \sigma\left(\sum_{j \in \mathcal{N}(i)\cup i} m_{ij}\right)
+  $$
+
+➡ Fixed, non-learnable aggregation (graph Laplacian)
+
+---
+
+### GAT as MPNN
+
+* **Message**
+  $$
+  m_{ij} = \alpha_{ij} W h_j
+  $$
+
+* **Attention**
+  $$
+  \alpha_{ij} =
+  \text{softmax}_j
+  \left(
+  \text{LeakyReLU}
+  (a^T [Wh_i || Wh_j])
+  \right)
+  $$
+
+➡ Learns **edge importance dynamically**
+
+---
+
+### GIN as MPNN
+
+* **Message**
+  $$
+  m_{ij} = h_j
+  $$
+
+* **Aggregation**: **sum (injective)**
+
+* **Update**
+  $$
+  h_i^{(l+1)} =
+  \text{MLP}
+  \left(
+  (1+\varepsilon) h_i^{(l)} + \sum_{j \in \mathcal{N}(i)} h_j^{(l)}
+  \right)
+  $$
+
+➡ As powerful as the **Weisfeiler–Lehman test**
+
+---
+
+### GraphSAGE as MPNN
+
+* **Message**
+  $$
+  m_{ij} = h_j
+  $$
+
+* **Aggregation**: mean / max / sum
+
+* **Update**
+  $$
+  h_i^{(l+1)} =
+  \sigma
+  \left(
+  W
+  \begin{bmatrix}
+  h_i^{(l)} \
+  \text{AGG}(\mathcal{N}(i))
+  \end{bmatrix}
+  \right)
+  $$
+
+➡ Inductive and scalable to unseen nodes
+
+---
+
+## Comparison Table
+
+| Model         | Message (M)         | Aggregation    | Update (U) | Learnable Aggregation | Laplacian | Attention | MLP      | Inductive | Expressiveness |
+| ------------- |---------------------| -------------- | ---------- | --------------------- | --------- | --------- | -------- | --------- | -------------- |
+| **GCN**       | $W h_j$             | Normalized sum | Linear + σ | ❌                     | ✅         | ❌         | ❌        | ❌         | Medium         |
+| **GAT**       | $\alpha_{ij} W h_j$ | Weighted sum   | Linear + σ | ✅                     | ❌         | ✅         | ❌        | ❌         | High           |
+| **GIN**       | $h_j$               | **Sum**        | **MLP**    | ❌                     | ❌         | ❌         | ✅        | ❌         | **Very High**  |
+| **GraphSAGE** | $h_j$               | Mean / Max     | Linear + σ | ❌                     | ❌         | ❌         | ❌        | ✅         | Medium         |
+| **MPNN**      | Arbitrary           | Any            | Any        | ✅                     | ❌         | Optional  | Optional | Optional  | Maximal        |
+
+---
+
+## Documentation
+
+| Model     | Theory & Details                         |
+| --------- | ---------------------------------------- |
+| GCN       | [`docs/gcn.md`](docs/gcn.md)             |
+| GAT       | [`docs/gat.md`](docs/gat.md)             |
+| GIN       | [`docs/gin.md`](docs/gin.md)             |
+| GraphSAGE | [`docs/GraphSAGE.md`](docs/GraphSAGE.md) |
+| MPNN      | [`docs/mpnn.md`](docs/mpnn.md)           |
+
+Each document:
+
+* Matches the **NumPy implementation exactly**
+* Avoids framework-specific abstractions
+* Is suitable for **teaching, labs, and self-study**
+
+---
+
+## Usage
+
+1. Clone the repository
+
    ```sh
-   $ git clone https://github.com/HamzaGbada/GCN-Numpy.git
+   git clone https://github.com/HamzaGbada/GCN-Numpy.git
    ```
-2. Install the requirement libraries
-   ```sh
-   $ uv sync
-   ```
-3. activate the virtual environment
-   ```sh
-   $ source .venv/bin/activate
-   ```
-4. Train
-    ```shell script
-    $ python train.py
-    ```
-    
 
-### Note
-We used [Pytorch geometric](https://pytorch-geometric.readthedocs.io/en/latest/) to load the [Zachary’s Karate Club graph](http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/ucidata.htm#zachary)  dataset.
+2. Install required libraries
+
+   ```sh
+   uv sync
+   ```
+
+3. Activate the virtual environment
+
+   ```sh
+   source .venv/bin/activate
+   ```
+
+4. Train the model
+
+   ```sh
+   python train.py
+   ```
+
+---
+
+## **Note**
+
+We use **[PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/)** **only for data loading**, not for modeling.
+
+In particular, it is used to load standard graph datasets such as:
+
+* **[Zachary’s Karate Club](http://vlado.fmf.uni-lj.si/pub/networks/data/ucinet/ucidata.htm#zachary)**
+* **Cora** (citation network)
+
+All **GNN models and training logic** are implemented **purely in NumPy**.
+
+
 
 ## References
 
-* Kipf, Thomas & Welling, Max. (2016). Semi-Supervised Classification with Graph Convolutional Networks.  
-
-
+* Kipf & Welling (2017) — Semi-Supervised GCN
+* Veličković et al. (2018) — Graph Attention Networks
+* Xu et al. (2019) — Graph Isomorphism Networks
+* Hamilton et al. (2017) — GraphSAGE
+* Gilmer et al. (2017) — Message Passing Neural Networks

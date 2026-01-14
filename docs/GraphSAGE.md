@@ -6,45 +6,159 @@ This is concise implementation of Graph Sample and Aggregation (GraphSAGE) for e
 
 ## Required theory
 
-
 ### Step 1: Data Representation
-- **Adjacency Matrix $A$**:
-  - Represents the graph structure where $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $A_{ij} = 0$ otherwise.
-- **Input Feature Matrix $X$**:
-  - Represents node features where each row corresponds to a node and each column corresponds to a feature.
+
+* **Adjacency Matrix $A$**:
+
+  * Represents the graph structure where
+    $A_{ij} = 1$ if there is an edge between nodes $i$ and $j$, and $0$ otherwise.
+  * Used to identify neighbor sets:
+    $$
+    \mathcal{N}(i) = { j \mid A_{ij} = 1 }
+    ]
+
+* **Input Feature Matrix $X$**:
+
+  * Node feature matrix where each row corresponds to a node and each column corresponds to a feature.
+  * Initial node representations:
+    $$
+    H^{(0)} = X
+    ]
+
+---
 
 ### Step 2: Initialization
-- **Weight Matrices $W^{(l)}$**:
-  - Initialize weight matrices for each layer $l$ of the GCN.
-- **Bias Vectors $b^{(l)}$** (optional):
-  - Optionally, initialize bias vectors for each layer.
+
+* **Weight Matrices $W^{(l)}$**:
+
+  * Learnable weight matrices for each GraphSAGE layer.
+  * Typical GraphSAGE uses **separate weights** for:
+
+    * Neighbor aggregation
+    * Self-node transformation
+  * Xavier/Glorot initialization is commonly used.
+
+* **Bias Vectors $b^{(l)}$** (optional):
+
+  * Initialized to zero.
+
+* **Aggregator Function**:
+
+  * Fixed, non-learnable function such as:
+
+    * Mean
+    * Sum
+    * Max
+  * (Mean aggregation is most common and simplest for NumPy.)
+
+---
 
 ### Step 3: Forward Propagation
-- **Normalized Graph Laplacian $\tilde{L}$**:
-  - Compute the normalized graph Laplacian: 
-    - $$\tilde{L} = I - D^{-\frac{1}{2}} A D^{-\frac{1}{2}}$$
-- **Graph Convolution Operation**:
-  - Compute the node representation matrix at layer $l+1$:
-    - $$H^{(l+1)} = \sigma(\tilde{L} H^{(l)} W^{(l)})$$
-  - $\sigma$ is the activation function.
+
+#### 3.1 Neighbor Sampling (Conceptual)
+
+* For each node $i$, sample a subset of neighbors:
+  $$
+  \mathcal{S}(i) \subseteq \mathcal{N}(i)
+  $$
+* In a full NumPy implementation, all neighbors are typically used.
+
+---
+
+#### 3.2 Neighbor Aggregation
+
+* Aggregate neighbor representations:
+  $$
+  h_{\mathcal{N}(i)}^{(l)} =
+  \text{AGGREGATE}
+  \left(
+  { h_j^{(l)} \mid j \in \mathcal{S}(i) }
+  \right)
+  $$
+
+* For **mean aggregation**:
+  $$
+  h_{\mathcal{N}(i)}^{(l)} =
+  \frac{1}{|\mathcal{S}(i)|}
+  \sum_{j \in \mathcal{S}(i)} h_j^{(l)}
+  $$
+
+---
+
+#### 3.3 Node Update
+
+* Combine self-node and neighbor representations:
+  $$
+   h_i^{(l+1)} =
+  \sigma
+  \left(
+  W^{(l)}
+\begin{bmatrix}
+ h_i^{(l)} \\ h_{\mathcal{N}(i)}^{(l)}
+\end{bmatrix}
+  b^{(l)}
+    \right)
+  $$
+
+* In matrix form:
+  $$
+ H^{(l+1)} =
+  \sigma
+  \left(
+  W^{(l)}
+  \left[
+  H^{(l)} || A H^{(l)}
+  \right]
+   b^{(l)}
+    \right)
+   $$
+
+* $||$ denotes concatenation.
+
+---
+
+#### 3.4 (Optional) Normalization
+
+* Node embeddings are often normalized:
+  $$
+  h_i^{(l+1)} \leftarrow
+  \frac{h_i^{(l+1)}}{|h_i^{(l+1)}|_2}
+  $$
+
+---
 
 ### Step 4: Loss Calculation
-- **Loss Function**:
-  - Compute the loss function for node classification (which is our case, we used Categorical Cross-Entropy):
-    - $$L = -\frac{1}{N} \sum_{i=1}^{N} \sum_{j=1}^{C} Y_{ij} \log(\hat{Y}_{ij})$$
+
+* **Categorical Cross-Entropy Loss** (node classification):
+  $$
+  L =
+  -\frac{1}{N}
+  \sum_{i=1}^{N}
+  \sum_{c=1}^{C}
+  Y_{ic} \log(\hat{Y}_{ic})
+  $$
+
+---
 
 ### Step 5: Backpropagation
-- **Gradient Computation**:
-  - Compute the gradients of the loss function with respect to the model parameters using backpropagation.
-  - Example: $\frac{\partial L}{\partial W} = \frac{1}{N} (X^T A^T) (\hat{Y} - Y)$.
-- **Parameter Update**:
-  - Update the model parameters using gradient descent or another optimization algorithm.
-    - $$W_{new} = W_{old} - \alpha \frac{\partial L}{\partial W}$$
+
+* **Gradient Computation**:
+
+  * Gradients are computed with respect to:
+
+    * Weight matrices $W^{(l)}$
+    * Bias vectors $b^{(l)}$
+
+* **Parameter Update**:
+  $$
+  \theta_{new} = \theta_{old} - \alpha \frac{\partial L}{\partial \theta}
+  $$
+
+---
 
 ### Step 6: Training Loop
-- **Iteration**:
-  - Repeat steps 3-5 iteratively until convergence or for a fixed number of epochs.
 
+* Repeat steps **3–5** for a fixed number of epochs or until convergence.
 
 ## References
 

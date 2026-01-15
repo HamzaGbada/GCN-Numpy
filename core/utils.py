@@ -3,6 +3,32 @@ import numpy as np
 
 class GraphUtils:
     @staticmethod
+    def softmax_cross_entropy(y_hat: np.ndarray, y: np.ndarray):
+        """
+        y_hat: softmax output (N, C)
+        y: one-hot labels (N, C)
+        """
+
+        N = y.shape[0]
+
+        # Loss
+        loss = -np.sum(y * np.log(y_hat + 1e-9)) / N
+
+        # Gradient w.r.t logits (softmax + CE fused)
+        error = (y_hat - y) / N
+
+        return loss, error
+
+    @staticmethod
+    def masked_softmax(e: np.ndarray, A: np.ndarray) -> np.ndarray:
+        e = e - np.max(e, axis=1, keepdims=True)
+        exp_e = np.exp(e) * A
+        return exp_e / (np.sum(exp_e, axis=1, keepdims=True) + 1e-9)
+
+    @staticmethod
+    def leaky_relu(x: np.ndarray, alpha=0.2) -> np.ndarray:
+        return np.where(x > 0, x, alpha * x)
+    @staticmethod
     def degree_matrix(A: np.ndarray) -> np.ndarray:
         """
         A: np.ndarray is the adjacency matrix of the graph.

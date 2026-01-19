@@ -116,3 +116,236 @@ This is concise implementation of Graph Attention Network (GAT) for educational 
 * Veličković, P., Cucurull, G., Casanova, A., Romero, A., Liò, P., & Bengio, Y. (2018). Graph attention networks. arXiv. https://arxiv.org/abs/1710.10903  
 
 
+## Annexe
+
+
+### **What “WL power” means (quick reminder)**
+
+A GNN has **WL power** if it can distinguish **all graphs that the 1-WL (Weisfeiler–Lehman) test can distinguish**.
+
+The 1-WL update is:
+
+$$
+h_i^{(l+1)} =
+\text{HASH}\Big(
+h_i^{(l)},
+;{!{h_j^{(l)} : j \in \mathcal{N}(i)}!}
+\Big)
+$$
+
+Key property:
+
+> The multiset aggregation is **injective**.
+
+If two neighborhoods differ (in counts or structure), WL will eventually detect it.
+
+
+### GAT’s update rule
+
+A single-head GAT layer:
+
+$$
+h_i^{(l+1)} =
+\sum_{j \in \mathcal{N}(i)}
+\alpha_{ij}^{(l)} W h_j^{(l)}
+$$
+
+where attention weights are:
+
+$$
+\alpha_{ij} =\frac{
+\exp\big(a^\top [Wh_i \Vert Wh_j]\big)
+}{
+\sum_{k \in \mathcal{N}(i)}
+\exp\big(a^\top [Wh_i \Vert Wh_k]\big)
+}
+$$
+
+⚠️ **Softmax normalization is the key issue.**
+
+
+### The core problem: attention = normalized weighted mean
+
+Because of softmax:
+
+$$
+\sum_{j \in \mathcal{N}(i)} \alpha_{ij} = 1
+$$
+
+So GAT aggregation is:
+
+$$
+\boxed{
+\text{GAT}(i) = \sum_j \alpha_{ij} x_j
+}
+$$
+
+This is a **convex combination** of neighbor features.
+
+
+### Why convex combinations are NOT injective
+
+#### Consider two neighborhoods:
+
+1. Neighborhood A
+
+$$
+{x, x, x}
+$$
+
+2. Neighborhood B
+
+$$
+{x, x}
+$$
+
+If attention scores are equal:
+
+$$
+\alpha = \frac{1}{|\mathcal{N}(i)|}
+$$
+
+Then:
+
+$$
+\sum \alpha x = x
+$$
+
+➡️ **Different multisets → same output**
+
+❌ Not injective
+
+❌ Not WL-powerful
+
+---
+
+### “But attention weights are learned!”
+
+Yes — **but normalization still kills injectivity**.
+
+Even if attention differs:
+
+$$
+\alpha_{ij} =
+\frac{e^{s_{ij}}}{\sum_k e^{s_{ik}}}
+$$
+
+This enforces:
+
+$$
+\alpha_{ij} \in (0,1), \quad \sum_j \alpha_{ij} = 1
+$$
+
+So GAT can **reweight**, but it cannot:
+
+* Encode **counts**
+* Encode **multiplicity**
+* Encode **degree information**
+
+
+### Formal limitation (Xu et al., 2019)
+
+The GIN paper proves:
+
+> Any GNN whose aggregation is a **weighted mean**
+> (including attention with softmax)
+>
+> **cannot be injective over multisets**
+
+Therefore:
+
+$$
+\boxed{
+\text{GAT} < \text{1-WL}
+}
+$$
+
+
+### Multi-head attention does NOT fix it
+
+Multi-head GAT:
+
+$$
+h_i = \Vert_{k=1}^K
+\sum_j \alpha_{ij}^{(k)} W^{(k)} h_j
+$$
+
+Still:
+
+* Each head is normalized
+* Each head loses counts
+* Concatenation doesn’t restore injectivity
+
+❌ Still not WL-powerful
+
+
+### Concrete counterexample (classic)
+
+Two nodes:
+
+#### Graph 1
+
+* Node A has **2 neighbors** with feature `[1]`
+
+#### Graph 2
+
+* Node B has **3 neighbors** with feature `[1]`
+
+For any GAT layer:
+
+$$
+h_A = h_B = [1]
+$$
+
+WL test **distinguishes** these nodes by degree.
+GAT **cannot**.
+
+
+### Why GIN succeeds where GAT fails
+
+GIN uses:
+
+$$
+h_i^{(l+1)} =
+\text{MLP}\left(
+(1+\varepsilon) h_i + \sum_{j \in \mathcal{N}(i)} h_j
+\right)
+$$
+
+Key differences:
+
+| Aspect           | GAT           | GIN     |
+|------------------|---------------|---------|
+| Aggregation      | Weighted mean | **Sum** |
+| Normalization    | Yes           | ❌ No    |
+| Injective        | ❌             | ✅       |
+| Counts preserved | ❌             | ✅       |
+| WL power         | ❌             | ✅       |
+
+
+### Intuition in one sentence
+
+> **Attention tells you *who* matters, but normalization makes you forget *how many* neighbors you have.**
+
+WL needs both.
+
+
+### Important subtlety
+
+⚠️ GAT is still extremely useful in practice:
+
+* Learns importance
+* Handles heterophily
+* Works well on real data
+
+But **theoretically**, it cannot match WL power.
+
+---
+
+### Final takeaway
+
+$$
+\boxed{
+\text{GAT cannot reach WL power because softmax-normalized attention is not an injective multiset function}
+}
+$$

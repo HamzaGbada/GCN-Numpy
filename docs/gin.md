@@ -245,7 +245,7 @@ H^{(l)}_i
 }
 $$
 
-📌 Scalar result (one ε per layer)
+📌 Scalar result (one $\varepsilon$ per layer)
 
 * **5.5 Gradient w.r.t previous layer embeddings $H^{(l)}$**
 
@@ -403,13 +403,13 @@ $$
 
 Consider two neighborhoods:
 
-### Neighborhood A
+1. Neighborhood A
 
 $$
 {1, 1, 1}
 $$
 
-### Neighborhood B
+2. Neighborhood B
 
 $$
 {1, 1}
@@ -531,12 +531,12 @@ $$
 $$
 
 
-### Intuition in one sentence
+#### Intuition in one sentence
 
 > **GIN is designed so that different graph structures never collapse to the same representation unless they are truly identical (isomorphic).**
 
 
-### Visual summary
+#### Visual summary
 
 ```
 GCN / GAT / SAGE
@@ -552,7 +552,7 @@ Sum + MLP
 Injective → Structure preserved → WL-power
 ```
 
-### Final takeaway
+#### Final takeaway
 
 | Concept       | Meaning                                              |
 | ------------- | ---------------------------------------------------- |
@@ -562,13 +562,242 @@ Injective → Structure preserved → WL-power
 | Isomorphism   | Same graph up to relabeling                          |
 | GIN name      | Matches WL graph isomorphism test                    |
 
+
+### Why **$\varepsilon$ (epsilon)** is crucial in GIN
+
+**1. What $\varepsilon$ actually does**
+
+Recall the GIN update:
+
+$$
+h_i^{(l+1)} =
+\text{MLP}\left(
+(1+\varepsilon) h_i^{(l)}+
+\sum_{j \in \mathcal{N}(i)} h_j^{(l)}
+\right)
+$$
+
+$\varepsilon$ controls the **relative importance of the central node** vs its neighbors.
+
+**2. Problem without $\varepsilon$ ($\varepsilon$ = 0 fixed)**
+
+If $\varepsilon=0$:
+
+$$
+h_i^{(l+1)} =
+\text{MLP}\left(
+h_i^{(l)} + \sum_{j \in \mathcal{N}(i)} h_j^{(l)}
+\right)
+$$
+
+Now consider two cases:
+
+**Case A**
+
+* Node has feature `x`
+* Neighbors: `{x, x}`
+
+$$
+x + x + x = 3x
+$$
+
+**Case B**
+
+* Node has feature `2x`
+* Neighbors: `{x}`
+
+$$
+2x + x = 3x
+$$
+
+➡️ **Different neighborhoods collapse to same representation**
+
+❌ Not injective
+
 ---
 
-If you want, next I can:
+**3. How $\varepsilon$ restores injectivity**
 
-* 🔹 Prove injectivity formally (paper-level)
-* 🔹 Show counterexamples for GCN/GAT
-* 🔹 Explain why **ε** is crucial
-* 🔹 Compare **GIN vs MPNN expressiveness**
+With $\varepsilon$ ≠ $0$:
 
-Just tell me 👍
+$$
+(1+\varepsilon)x + 2x
+\neq
+(1+\varepsilon)2x + x
+$$
+
+For almost all $\varepsilon$:
+
+$$
+(3+\varepsilon)x \neq (3+2\varepsilon)x
+$$
+
+➡️ **Central node and neighbors are distinguishable**
+
+📌 The paper proves:
+
+> For almost all $\varepsilon$, the function becomes injective.
+
+
+**4. Learnable $\varepsilon$ vs fixed $\varepsilon$**
+
+| Choice                  | Effect                  |
+|-------------------------|-------------------------|
+| Fixed $\varepsilon$ = 0 | Often OK, but weaker    |
+| Learnable $\varepsilon$ | Model adapts importance |
+| $\varepsilon$ per layer | Higher expressiveness   |
+
+Your implementation correctly supports **learnable $\varepsilon$**.
+
+### GIN vs MPNN — Expressiveness Comparison
+
+**1. General MPNN formulation (Gilmer et al.)**
+
+MPNN defines:
+
+- **Message**
+
+$$
+m_{ij}^{(l)} = M^{(l)}(h_i^{(l)}, h_j^{(l)}, e_{ij})
+$$
+
+- **Aggregation**
+
+$$
+m_i^{(l)} = \sum_{j \in \mathcal{N}(i)} m_{ij}^{(l)}
+$$
+
+- **Update**
+
+$$
+h_i^{(l+1)} = U^{(l)}(h_i^{(l)}, m_i^{(l)})
+$$
+
+This is **very general**.
+
+
+**2. GIN as a special case of MPNN**
+
+GIN corresponds to:
+
+* **Message**
+  $$
+  m_{ij}^{(l)} = h_j^{(l)}
+  $$
+
+* **Aggregation**
+  $$
+  m_i^{(l)} = \sum_{j \in \mathcal{N}(i)} h_j^{(l)}
+  $$
+
+* **Update**
+  $$
+  U(h_i, m_i) =
+  \text{MLP}((1+\varepsilon)h_i + m_i)
+  $$
+
+So:
+
+$$
+\boxed{
+\text{GIN} \subset \text{MPNN}
+}
+$$
+
+**3. Expressiveness is NOT about generality**
+
+Although MPNN is **more general**, it is often **less expressive in practice** because:
+
+**Most MPNNs use:**
+
+* Mean aggregation
+* Max aggregation
+* Normalization
+* Simple linear updates
+
+➡️ These are **not injective**
+
+
+**4. Expressiveness theorem (GIN paper)**
+
+> Any GNN that:
+>
+> * Uses non-injective aggregation
+> * Or normalizes neighbor messages
+>
+> **cannot be more powerful than the 1-WL test**
+
+GIN achieves **maximal expressiveness** among MPNNs using:
+
+* Sum aggregation
+* Injective MLP
+* $\varepsilon$ term
+ 
+
+**5. Concrete comparison**
+
+| Model          | Aggregation                   | Injective? | WL-power   |
+|----------------|-------------------------------|------------|------------|
+| GCN            | Mean / norm                   | ❌          | < 1-WL     |
+| GraphSAGE      | Mean / Max                    | ❌          | < 1-WL     |
+| GAT            | Weighted mean                 | ❌          | < 1-WL     |
+| MPNN (typical) | Mean / Max                    | ❌          | < 1-WL     |
+| **GIN**        | **Sum + MLP + $\varepsilon$** | ✅          | **= 1-WL** |
+
+
+**6. Why normalization kills MPNN expressiveness**
+
+Normalization makes:
+
+$$
+\sum_j \alpha_{ij} = 1
+$$
+
+This turns aggregation into a **convex combination**:
+
+* Counts are lost
+* Multiplicity is lost
+* Degree information is erased
+
+➡️ **Non-injective multiset function**
+
+
+### Why GIN is the most expressive MPNN (node-level)
+
+Key result:
+
+> **GIN is the most expressive MPNN possible under the message-passing framework**
+
+You cannot beat it **without breaking MPNN assumptions** (e.g. higher-order GNNs).
+
+
+### Intuition in one picture
+
+```
+MPNN (general)
+   ↓
+Aggregation choice matters
+   ↓
+Mean / max → collapse
+Sum + ε + MLP → injective
+   ↓
+GIN = maximal power
+```
+
+---
+
+### Final takeaway
+
+#### $\varepsilon$ is crucial because:
+
+* Separates self from neighbors
+* Prevents structural collapse
+* Enables injectivity
+* Improves WL power
+
+#### GIN vs MPNN:
+
+* GIN is an MPNN
+* But a **carefully designed one**
+* Achieves **theoretical maximal expressiveness**
+

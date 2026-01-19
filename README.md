@@ -147,7 +147,8 @@ Each GNN defines:
 ## Documentation
 
 | Model     | Theory & Details                         |
-| --------- | ---------------------------------------- |
+|-----------|------------------------------------------|
+| WL theorm | [`docs/wl.md`](docs/wl.md)               |
 | GCN       | [`docs/gcn.md`](docs/gcn.md)             |
 | GAT       | [`docs/gat.md`](docs/gat.md)             |
 | GIN       | [`docs/gin.md`](docs/gin.md)             |

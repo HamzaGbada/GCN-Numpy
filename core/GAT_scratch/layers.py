@@ -31,12 +31,6 @@ class GATLayer:
         self.A = A
 
         # Linear projection
-        print("type(X)")
-        print(type(X))
-        print("type(A)")
-        print(type(A))
-        print("type(self.W)")
-        print(type(self.W))
         H = X @ self.W
         self.H = H
         N, F_out = H.shape
@@ -58,10 +52,6 @@ class GATLayer:
         self.attention = attention
 
         # Aggregation
-        print("type(attention)")
-        print(type(attention))
-        print("type(H)")
-        print(type(H))
         out = attention @ H + self.bias
         return out
 
@@ -99,12 +89,17 @@ class GATLayer:
         for i in range(N):
             for j in range(N):
                 if A[i, j] == 1:
-                    concat = np.concatenate([H[i], H[j]])
-                    grad = GraphUtils.leaky_relu_backward(concat @ self.a, self.alpha) * dE[i, j]
+                    concat = np.concatenate([H[i], H[j]]).reshape(-1, 1)  # (2F, 1)
 
-                    da += grad * concat
-                    dH[i] += grad * self.a[:F_out]
-                    dH[j] += grad * self.a[F_out:]
+                    z = (concat.T @ self.a)[0, 0]  # scalar
+                    grad = GraphUtils.leaky_relu_backward(z, self.alpha) * dE[i, j]
+
+                    # Gradient w.r.t attention vector a
+                    da += grad * concat  # (2F,1)
+
+                    # Gradient w.r.t node embeddings
+                    dH[i] += (grad * self.a[:F_out]).flatten()
+                    dH[j] += (grad * self.a[F_out:]).flatten()
 
         # ---- 4. Linear backward ----
         dW = X.T @ dH

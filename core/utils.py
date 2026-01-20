@@ -18,7 +18,13 @@ class GraphUtils:
         error = (y_hat - y) / N
 
         return loss, error
-
+    @staticmethod
+    def leaky_relu_backward(x: np.ndarray, alpha=0.2):
+        """
+        Derivative of LeakyReLU with respect to input x.
+        Works for scalars and NumPy arrays.
+        """
+        return np.where(x > 0, 1.0, alpha)
     @staticmethod
     def masked_softmax(e: np.ndarray, A: np.ndarray) -> np.ndarray:
         e = e - np.max(e, axis=1, keepdims=True)

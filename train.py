@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from torch_geometric.datasets import Planetoid
 
+from core.GAT_scratch.model import GAT
 from core.GCN_scratch.model import GCN
 from core.utils import GraphUtils
 
@@ -33,7 +34,7 @@ if __name__ == "__main__":
     epochs = 5
     lr = 0.1
 
-    gcn = GCN(input_dim, hidden_dim, output_dim)
+    gcn = GAT(input_dim, hidden_dim, output_dim)
 
     loss_list = []
     for epoch in range(epochs):

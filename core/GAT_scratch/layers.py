@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+
 from core.utils import GraphUtils
 
 
@@ -23,10 +25,18 @@ class GATLayer:
         X: (N, F_in)
         A: (N, N) adjacency (1 incl. self loops)
         """
+        if isinstance(X, torch.Tensor):
+            X = X.detach().cpu().numpy()
         self.X = X
         self.A = A
 
         # Linear projection
+        print("type(X)")
+        print(type(X))
+        print("type(A)")
+        print(type(A))
+        print("type(self.W)")
+        print(type(self.W))
         H = X @ self.W
         self.H = H
         N, F_out = H.shape
@@ -48,6 +58,10 @@ class GATLayer:
         self.attention = attention
 
         # Aggregation
+        print("type(attention)")
+        print(type(attention))
+        print("type(H)")
+        print(type(H))
         out = attention @ H + self.bias
         return out
 

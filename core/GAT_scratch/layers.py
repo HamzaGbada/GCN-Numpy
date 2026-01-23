@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 
 from core.utils import GraphUtils
 
@@ -25,8 +24,6 @@ class GATLayer:
         X: (N, F_in)
         A: (N, N) adjacency (1 incl. self loops)
         """
-        if isinstance(X, torch.Tensor):
-            X = X.detach().cpu().numpy()
         self.X = X
         self.A = A
 
@@ -61,10 +58,10 @@ class GATLayer:
         """
         X, H, A, e, alpha = self.X, self.H, self.A, self.e, self.attention
         N, F_out = H.shape
-        F_in = X.shape[1]
+        # F_in = X.shape[1]
 
         dH = np.zeros_like(H)
-        dW = np.zeros_like(self.W)
+        # dW = np.zeros_like(self.W)
         da = np.zeros_like(self.a)
         dbias = np.sum(dOut, axis=0, keepdims=True)
 

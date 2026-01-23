@@ -42,14 +42,14 @@ class GAT:
         logits = self.out_layer.forward(H, A)
         return logits  # No softmax here; handled in loss
 
-    def backward(self, y: np.ndarray, y_hat: np.ndarray, alpha=0.01):
+    def backward(self, y: np.ndarray, y_hat: np.ndarray, lr=0.01):
         """
         Backward pass using softmax + cross-entropy gradient:
         dL/d(logits) = (y_hat - y)/N
 
         y: One-hot labels (N, C)
         y_hat: softmax outputs from forward (N, C)
-        alpha: learning rate
+        lr: learning rate
         """
         N = y.shape[0]
 
@@ -57,7 +57,7 @@ class GAT:
         grad = (y_hat - y) / N  # (N, C)
 
         # 2. Output layer backward
-        grad = self.out_layer.backward(grad, alpha)
+        grad = self.out_layer.backward(grad, lr)
 
         # 3. Hidden layers backward (reverse order)
         for layer, relu_mask in zip(
@@ -65,10 +65,10 @@ class GAT:
             reversed(self.relu_masks[1:])
         ):
             grad = grad * relu_mask  # ReLU backward
-            grad = layer.backward(grad, alpha)
+            grad = layer.backward(grad, lr)
 
         # 4. Input layer backward
         grad = grad * self.relu_masks[0]  # ReLU backward
-        grad = self.init_layer.backward(grad, alpha)
+        grad = self.init_layer.backward(grad, lr)
 
         return grad

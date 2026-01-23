@@ -801,3 +801,117 @@ GIN = maximal power
 * But a **carefully designed one**
 * Achieves **theoretical maximal expressiveness**
 
+
+## Note on Training Instability in GIN (NaN / Explosion Issue)
+
+### Why this happens
+
+This implementation follows the **original Graph Isomorphism Network (GIN)** design, which uses an **un-normalized sum aggregation**:
+
+$$
+\mathbf{h}_i^{(l+1)} =
+\text{MLP}\Big((1+\varepsilon)\mathbf{h}*i^{(l)} +
+\sum*{j \in \mathcal{N}(i)} \mathbf{h}_j^{(l)}\Big)
+$$
+
+This choice is **intentional** and **theoretically motivated**:
+
+* The **sum aggregator is injective**
+* This allows GIN to match the expressive power of **1-Weisfeiler–Lehman (1-WL)**
+
+However, this comes with an important consequence:
+
+> **Feature magnitudes grow with node degree and depth**
+
+In real graphs (e.g. Cora), high-degree nodes accumulate large activations.
+When combined with:
+
+* multi-layer MLPs
+* ReLU activations
+* large learning rates
+* naïve weight initialization
+
+this leads to **activation explosion**, causing:
+
+* `inf` values
+* `NaN` loss
+* unstable training after a few epochs
+
+This is a **known and expected issue** with raw GIN implementations.
+
+---
+
+### Why GCN / GraphSAGE do not explode
+
+| Model     | Aggregation     | Stability  | Expressiveness |
+| --------- | --------------- | ---------- | -------------- |
+| GCN       | normalized mean | ✅ stable   | ❌ < 1-WL       |
+| GraphSAGE | mean / max      | ✅ stable   | ❌ < 1-WL       |
+| **GIN**   | sum (injective) | ❌ unstable | ✅ = 1-WL       |
+
+GIN explicitly **trades numerical stability for expressive power**.
+
+
+##  Batch Normalization (as in the original GIN paper)
+
+To address this, the original GIN paper introduces **Batch Normalization after each MLP**:
+
+$$
+\mathbf{h}^{(l+1)} =
+\text{ReLU}\big(\text{BatchNorm}(\text{MLP}(\cdot))\big)
+$$
+
+### Why BatchNorm fixes the issue
+
+BatchNorm:
+
+* rescales activations to zero mean and unit variance
+* prevents uncontrolled growth across layers
+* stabilizes gradients
+* allows higher learning rates
+
+In practice, **GIN without BatchNorm is rarely trainable**.
+
+---
+
+## Does BatchNorm break 1-WL expressiveness?
+
+**No.**
+
+BatchNorm **does NOT break the 1-WL power of GIN**, because:
+
+1. **BatchNorm is applied independently per node feature**
+2. It does **not mix information between nodes**
+3. It is a **bijective (almost everywhere) affine transformation**
+4. Injectivity of the sum aggregation is preserved
+
+Formally:
+
+* The **multiset aggregation remains injective**
+* Node distinctions produced by 1-WL are preserved
+* BatchNorm only rescales representations, it does not collapse them
+
+This is why the original paper includes BatchNorm while still claiming
+**maximum 1-WL expressiveness**.
+
+
+## Practical recommendations
+
+To avoid NaNs when training GIN from scratch:
+
+* Use **BatchNorm after each MLP**
+* Use **Xavier / He initialization**
+* Use **small learning rates** (`≤ 0.01`)
+* Optionally clamp ε if learnable
+* Always use **numerically stable softmax**
+
+
+## Takeaway
+
+> **GIN’s instability is not a bug — it is the price of maximum expressiveness.**
+
+BatchNorm is not an optimization trick here;
+it is **essential for making a 1-WL-power GNN trainable in practice**.
+
+
+

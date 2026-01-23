@@ -1,6 +1,6 @@
 import numpy as np
 
-from GCN_scratch.utils import GraphUtils
+from core.utils import GraphUtils
 
 
 class GCNLayer:

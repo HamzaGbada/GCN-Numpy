@@ -1,7 +1,7 @@
 import numpy as np
 
-from GCN_scratch.layers import GCNLayer
-from GCN_scratch.utils import GraphUtils
+from core.GCN_scratch.layers import GCNLayer
+from core.utils import GraphUtils
 
 
 class GCN:
@@ -17,10 +17,10 @@ class GCN:
             H = GraphUtils.ReLU(self.hidden_layer.forward(H, A))
         return GraphUtils.softmax(self.out_layer.forward(H, A))
 
-    def backward(self, y, y_hat, alpha=0.01):
+    def backward(self, y, y_hat, lr=0.01):
         error = (y_hat - y) / y.shape[0]
-        gradient_out = self.out_layer.backward(error, alpha)
-        gradient_hid = self.hidden_layer.backward(gradient_out, alpha)
-        gradient_init = self.init_layer.backward(gradient_hid, alpha)
+        gradient_out = self.out_layer.backward(error, lr)
+        gradient_hid = self.hidden_layer.backward(gradient_out, lr)
+        gradient_init = self.init_layer.backward(gradient_hid, lr)
 
         return gradient_init, gradient_hid, gradient_out

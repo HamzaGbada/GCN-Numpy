@@ -2,8 +2,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 from torch_geometric.datasets import Planetoid
 
-from GCN_scratch.model import GCN
-from GCN_scratch.utils import GraphUtils
+from core.GAT_scratch.model import GAT
+from core.GCN_scratch.model import GCN
+from core.GIN_scratch.model import GIN
+from core.utils import GraphUtils
 
 if __name__ == "__main__":
     dataset = Planetoid(root="data/Cora", name="Cora")
@@ -18,7 +20,7 @@ if __name__ == "__main__":
     adj_matrix[edge_index[1], edge_index[0]] = 1
 
     A = adj_matrix
-    X = data.x
+    X = data.x.numpy()
     y = data.y.numpy()
 
     # Get the number of unique labels
@@ -33,7 +35,7 @@ if __name__ == "__main__":
     epochs = 5
     lr = 0.1
 
-    gcn = GCN(input_dim, hidden_dim, output_dim)
+    gcn = GIN(input_dim, hidden_dim, output_dim)
 
     loss_list = []
     for epoch in range(epochs):
@@ -42,7 +44,7 @@ if __name__ == "__main__":
         loss = GraphUtils.loss_function(y, y_hat)
         loss_list.append(loss)
         print(f"the epoch {epoch+1}/{epochs} : \n The current Loss => {loss}")
-        gcn.backward(y, y_hat, alpha=lr)
+        gcn.backward(y, y_hat, lr=lr)
     print("train finished")
 
     plt.plot(range(epochs), loss_list)

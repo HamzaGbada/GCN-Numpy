@@ -66,7 +66,7 @@ class GATLayer:
         dbias = np.sum(dOut, axis=0, keepdims=True)
 
         # ---- 1. Aggregation backward ----
-        dAlpha = dOut @ H.T          # (N, N)
+        dAlpha = dOut @ H.T  # (N, N)
         dH += alpha.T @ dOut
 
         # ---- 2. Softmax backward ----
@@ -78,7 +78,9 @@ class GATLayer:
                     for k in range(N):
                         if A[i, k] == 1:
                             if j == k:
-                                dE[i, j] += alpha[i, j] * (1 - alpha[i, j]) * dAlpha[i, j]
+                                dE[i, j] += (
+                                    alpha[i, j] * (1 - alpha[i, j]) * dAlpha[i, j]
+                                )
                             else:
                                 dE[i, j] -= alpha[i, j] * alpha[i, k] * dAlpha[i, k]
 
@@ -108,4 +110,3 @@ class GATLayer:
         self.bias -= lr * dbias
 
         return dX
-

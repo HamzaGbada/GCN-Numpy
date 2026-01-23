@@ -1,16 +1,14 @@
 import numpy as np
 from core.GAT_scratch.layers import GATLayer
 
+
 class GAT:
     def __init__(self, in_feat, hid_feat, out_feat, layers=1):
         # Input layer
         self.init_layer = GATLayer(in_feat, hid_feat)
 
         # Hidden layers (list of independent GAT layers)
-        self.hidden_layers = [
-            GATLayer(hid_feat, hid_feat)
-            for _ in range(layers)
-        ]
+        self.hidden_layers = [GATLayer(hid_feat, hid_feat) for _ in range(layers)]
 
         # Output layer
         self.out_layer = GATLayer(hid_feat, out_feat)
@@ -27,14 +25,14 @@ class GAT:
 
         # --- Input layer ---
         H = self.init_layer.forward(X, A)
-        mask = (H > 0)
+        mask = H > 0
         self.relu_masks.append(mask)
         H = H * mask  # ReLU
 
         # --- Hidden layers ---
         for layer in self.hidden_layers:
             H = layer.forward(H, A)
-            mask = (H > 0)
+            mask = H > 0
             self.relu_masks.append(mask)
             H = H * mask  # ReLU
 
@@ -61,8 +59,7 @@ class GAT:
 
         # 3. Hidden layers backward (reverse order)
         for layer, relu_mask in zip(
-            reversed(self.hidden_layers),
-            reversed(self.relu_masks[1:])
+            reversed(self.hidden_layers), reversed(self.relu_masks[1:])
         ):
             grad = grad * relu_mask  # ReLU backward
             grad = layer.backward(grad, lr)

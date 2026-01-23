@@ -29,11 +29,7 @@ class GraphSAGELayer:
         self.H_neigh = np.dot(A_norm, X)
 
         # Linear transformation
-        self.Z = (
-            np.dot(X, self.W_self)
-            + np.dot(self.H_neigh, self.W_neigh)
-            + self.bias
-        )
+        self.Z = np.dot(X, self.W_self) + np.dot(self.H_neigh, self.W_neigh) + self.bias
 
         return GraphUtils.ReLU(self.Z)
 

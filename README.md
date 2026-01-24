@@ -58,17 +58,17 @@ Each GNN architecture defines its own:
 
 ```mermaid
 flowchart TD
-    subgraph Neighbor Messages
-        J1["h_j1^(l)"]
-        J2["h_j2^(l)"]
-        J3["h_j3^(l)"]
+    subgraph Neighbor_Messages
+        J1[h_j1]
+        J2[h_j2]
+        J3[h_j3]
     end
-    I["h_i^(l)"] --> M[Compute messages m_ij]
+    I[h_i] --> M[Compute messages]
     J1 --> M
     J2 --> M
     J3 --> M
-    M --> A["Aggregate m_ij → m_i^(l)"]
-    A --> U["Update h_i^(l+1)"]
+    M --> A[Aggregate messages]
+    A --> U[Update node state]
 ```
 
 ---

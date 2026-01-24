@@ -2,9 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from torch_geometric.datasets import Planetoid
 
-from core.GAT_scratch.model import GAT
-from core.GCN_scratch.model import GCN
-from core.GIN_scratch.model import GIN
+from core import get_model
 from core.utils import GraphUtils
 
 if __name__ == "__main__":
@@ -35,16 +33,18 @@ if __name__ == "__main__":
     epochs = 5
     lr = 0.1
 
-    gcn = GIN(input_dim, hidden_dim, output_dim)
+    # Select model by name: "GCN", "GAT", "GIN", or "GraphSAGE"
+    MODEL_NAME = "GIN"
+    model = get_model(MODEL_NAME, input_dim, hidden_dim, output_dim)
 
     loss_list = []
     for epoch in range(epochs):
-        y_hat = gcn.forward(X, A)
+        y_hat = model.forward(X, A)
 
         loss = GraphUtils.loss_function(y, y_hat)
         loss_list.append(loss)
         print(f"the epoch {epoch+1}/{epochs} : \n The current Loss => {loss}")
-        gcn.backward(y, y_hat, lr=lr)
+        model.backward(y, y_hat, lr=lr)
     print("train finished")
 
     plt.plot(range(epochs), loss_list)

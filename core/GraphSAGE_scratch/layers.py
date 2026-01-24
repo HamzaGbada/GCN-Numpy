@@ -1,41 +1,57 @@
 import numpy as np
+
+from core.MPNN_scratch.base import MPNNLayer
 from core.utils import GraphUtils
 
 
-class GraphSAGELayer:
+class GraphSAGELayer(MPNNLayer):
+    """
+    GraphSAGE layer.
+    
+    Implements GraphSAGE as a specialization of MPNN:
+    - message(): Identity (pass through features)
+    - aggregate(): Mean aggregation D^{-1} @ A @ X
+    - update(): Apply X @ W_self + H_neigh @ W_neigh + bias with ReLU
+    """
+    
     def __init__(self, in_feat, out_feat):
+        super().__init__()
         # Separate weights (canonical GraphSAGE)
         self.W_self = np.random.randn(in_feat, out_feat) * 0.01
         self.W_neigh = np.random.randn(in_feat, out_feat) * 0.01
         self.bias = np.zeros((1, out_feat))
 
-        # Cache for backward
-        self.X = None
-        self.A = None
+        # Additional caches for backward
         self.H_neigh = None
         self.Z = None
 
-    def forward(self, X: np.ndarray, A: np.ndarray):
-        """
-        X: (N, Fin)
-        A: (N, N) adjacency matrix
-        """
-        self.X = X
-        self.A = A
-
-        # Mean aggregation: D^{-1} A X
+    def message(self, X, A):
+        """Identity message - features passed through unchanged."""
+        return X
+    
+    def aggregate(self, messages, A):
+        """Mean aggregation: D^{-1} A X."""
         D = np.sum(A, axis=1, keepdims=True) + 1e-8
         A_norm = A / D
-        self.H_neigh = np.dot(A_norm, X)
-
+        self.H_neigh = np.dot(A_norm, messages)
+        return self.H_neigh
+    
+    def update(self, aggregated):
+        """Apply linear transformation with separate self and neighbor weights, then ReLU."""
         # Linear transformation
-        self.Z = np.dot(X, self.W_self) + np.dot(self.H_neigh, self.W_neigh) + self.bias
-
+        self.Z = np.dot(self.X, self.W_self) + np.dot(aggregated, self.W_neigh) + self.bias
         return GraphUtils.ReLU(self.Z)
 
     def backward(self, grad_out: np.ndarray, lr: float):
         """
-        grad_out: dL/dH^{(l+1)}
+        Backward pass for GraphSAGE layer.
+        
+        Args:
+            grad_out: dL/dH^{(l+1)}
+            lr: Learning rate
+            
+        Returns:
+            Gradient with respect to input features
         """
         # ReLU gradient
         grad_Z = grad_out * (self.Z > 0)

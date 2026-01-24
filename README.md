@@ -4,7 +4,6 @@
 
 This project provides **clean, educational, NumPy-only implementations** of major **Graph Neural Network (GNN)** architectures, implemented **from scratch** to expose their mathematical foundations.
 
----
 
 ## Philosophy
 
@@ -18,7 +17,6 @@ The goal is **not performance**, but **understanding**:
 
 This repository is designed for **learning, teaching, and self-study**. Each GNN is implemented as a specialization of the **Message Passing Neural Network (MPNN)** framework using the **Template Method design pattern**.
 
----
 
 ## Implemented Models
 
@@ -32,7 +30,6 @@ This repository is designed for **learning, teaching, and self-study**. Each GNN
 
 All models are trained and evaluated on **node classification tasks**.
 
----
 
 ## From MPNN Theory to Software Architecture
 
@@ -71,7 +68,6 @@ flowchart TD
     A --> U[Update node state]
 ```
 
----
 
 ## Template Method Design Pattern
 
@@ -123,7 +119,6 @@ forward(X, A):
 
 Each GNN layer inherits from `MPNNLayer` and overrides only the methods that differ mathematically.
 
----
 
 ## GNN → MPNN Specialization
 
@@ -146,7 +141,6 @@ flowchart TD
 | **GIN** | Identity | Sum (injective) $\sum_{j} h_j$ | MLP with $(1+\varepsilon)$ | Update-centric | [`docs/gin.md`](docs/gin.md) |
 | **GraphSAGE** | Identity | Mean $D^{-1} A X$ | Concat + Linear + activation | Aggregation-centric | [`docs/GraphSAGE.md`](docs/GraphSAGE.md) |
 
----
 
 ## Detailed GNN Equations as MPNN
 
@@ -162,7 +156,6 @@ $$h_i^{(l+1)} = \sigma\left(\sum_{j \in \mathcal{N}(i) \cup \{i\}} \frac{1}{\sqr
 
 ➡ GCN uses **fixed, non-learnable aggregation** based on graph structure.
 
----
 
 ### GAT as MPNN
 
@@ -179,7 +172,6 @@ $$\alpha_{ij} = \text{softmax}_j\left(\text{LeakyReLU}(a^T [Wh_i \| Wh_j])\right
 
 ➡ GAT **learns edge importance dynamically** through attention.
 
----
 
 ### GIN as MPNN
 
@@ -193,7 +185,6 @@ $$h_i^{(l+1)} = \text{MLP}\left((1 + \varepsilon) \cdot h_i^{(l)} + \sum_{j \in 
 
 ➡ GIN is **as powerful as the Weisfeiler–Lehman graph isomorphism test**.
 
----
 
 ### GraphSAGE as MPNN
 
@@ -207,7 +198,6 @@ $$h_i^{(l+1)} = \sigma\left(W \cdot \text{CONCAT}(h_i^{(l)}, \text{AGG}(\{h_j : 
 
 ➡ GraphSAGE is **inductive** — can generalize to unseen nodes.
 
----
 
 ## Multi-Node Message Passing
 
@@ -229,7 +219,6 @@ flowchart LR
 
 In matrix form, all node updates happen in parallel through matrix multiplications — this is why the NumPy implementations are vectorized.
 
----
 
 ## Design–Math Alignment
 
@@ -250,7 +239,6 @@ This tight alignment between math and code makes the implementations ideal for:
 - **Teaching** — Use as lab exercises or lecture material
 - **Research** — Modify components while preserving correctness
 
----
 
 ## Project Structure
 
@@ -271,7 +259,6 @@ This tight alignment between math and code makes the implementations ideal for:
 └── README.md
 ```
 
----
 
 ## Documentation
 
@@ -286,7 +273,6 @@ This tight alignment between math and code makes the implementations ideal for:
 
 > **The README explains *how everything fits together*; the docs explain *the math in detail*.**
 
----
 
 ## Comparison Table
 
@@ -298,7 +284,6 @@ This tight alignment between math and code makes the implementations ideal for:
 | **GraphSAGE** | $h_j$ | Mean / Max | Linear + σ | ❌ | ❌ | ❌ | ✅ | Medium |
 | **MPNN** | Arbitrary | Any | Any | ✅ | Optional | Optional | Optional | Maximal |
 
----
 
 ## Usage
 
@@ -336,7 +321,6 @@ MODEL_NAME = "GIN"  # Options: "GCN", "GAT", "GIN", "GraphSAGE"
 model = get_model(MODEL_NAME, input_dim, hidden_dim, output_dim)
 ```
 
----
 
 ## Note on Data Loading
 
@@ -348,7 +332,6 @@ Datasets used:
 
 All **GNN models and training logic** are implemented **purely in NumPy**.
 
----
 
 ## References
 
@@ -359,7 +342,6 @@ All **GNN models and training logic** are implemented **purely in NumPy**.
 - **Hamilton et al. (2017)** — Inductive Representation Learning on Large Graphs (GraphSAGE)
 - **Weisfeiler & Lehman (1968)** — The reduction of a graph to canonical form
 
----
 
 ## License
 

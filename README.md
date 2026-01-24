@@ -341,8 +341,8 @@ All **GNN models and training logic** are implemented **purely in NumPy**.
 - **Xu et al. (2019)** — How Powerful are Graph Neural Networks? (GIN)
 - **Hamilton et al. (2017)** — Inductive Representation Learning on Large Graphs (GraphSAGE)
 - **Weisfeiler & Lehman (1968)** — The reduction of a graph to canonical form
-
-
+- **Veličković, P. (2022)** - Message passing all the way up
+- 
 ## License
 
 MIT License

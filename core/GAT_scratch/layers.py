@@ -1,10 +1,21 @@
 import numpy as np
 
+from core.MPNN_scratch.base import MPNNLayer
 from core.utils import GraphUtils
 
 
-class GATLayer:
+class GATLayer(MPNNLayer):
+    """
+    Graph Attention Network layer.
+    
+    Implements GAT as a specialization of MPNN:
+    - message(): Compute attention scores via learned attention mechanism
+    - aggregate(): Apply masked softmax and attention-weighted aggregation
+    - update(): Apply bias addition
+    """
+    
     def __init__(self, in_feat: np.ndarray, out_feat: np.ndarray, alpha=0.2):
+        super().__init__()
         self.W = np.random.randn(in_feat, out_feat) * 0.01
 
         # Attention vector a = [a_l || a_r]
@@ -14,19 +25,16 @@ class GATLayer:
         self.alpha = alpha  # LeakyReLU slope
 
         # Cache for backward
-        self.X = None
-        self.A = None
         self.H = None
+        self.e = None
         self.attention = None
 
-    def forward(self, X: np.ndarray, A: np.ndarray):
+    def message(self, X, A):
         """
-        X: (N, F_in)
-        A: (N, N) adjacency (1 incl. self loops)
+        Compute linear projection and attention logits.
+        
+        Returns the projected features H and computes attention scores e.
         """
-        self.X = X
-        self.A = A
-
         # Linear projection
         H = X @ self.W
         self.H = H
@@ -43,25 +51,42 @@ class GATLayer:
                     e[i, j] = GraphUtils.leaky_relu(score, self.alpha)
 
         self.e = e
-
+        
+        # Return both H and e as a tuple for aggregate step
+        return (H, e)
+    
+    def aggregate(self, messages, A):
+        """
+        Apply masked softmax and compute attention-weighted aggregation.
+        """
+        H, e = messages
+        
         # Masked softmax
         attention = GraphUtils.masked_softmax(e, A)
         self.attention = attention
 
-        # Aggregation
-        out = attention @ H + self.bias
-        return out
+        # Attention-weighted aggregation
+        return attention @ H
+    
+    def update(self, aggregated):
+        """Apply bias addition."""
+        return aggregated + self.bias
 
     def backward(self, dOut: np.ndarray, lr: np.ndarray):
         """
-        dOut: (N, F_out)
+        Backward pass for GAT layer.
+        
+        Args:
+            dOut: Gradient of loss with respect to output (N, F_out)
+            lr: Learning rate
+            
+        Returns:
+            Gradient with respect to input features
         """
         X, H, A, e, alpha = self.X, self.H, self.A, self.e, self.attention
         N, F_out = H.shape
-        # F_in = X.shape[1]
 
         dH = np.zeros_like(H)
-        # dW = np.zeros_like(self.W)
         da = np.zeros_like(self.a)
         dbias = np.sum(dOut, axis=0, keepdims=True)
 

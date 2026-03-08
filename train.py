@@ -31,7 +31,7 @@ if __name__ == "__main__":
     hidden_dim = 16
     output_dim = num_labels
     epochs = 5
-    lr = 0.1
+    lr = 0.01
 
     # Select model by name: "GCN", "GAT", "GIN", or "GraphSAGE"
     MODEL_NAME = "GIN"

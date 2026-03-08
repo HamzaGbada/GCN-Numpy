@@ -26,6 +26,8 @@ class OversmoothingMetrics:
         """
         DE = tr(X^T L X)
         """
+        X = X.astype(np.float64)
+        L = L.astype(np.float64)
         return np.trace(X.T @ L @ X)
 
     @staticmethod
@@ -33,6 +35,7 @@ class OversmoothingMetrics:
         """
         Frobenius norm squared
         """
+        X = X.astype(np.float64)
         return np.sum(X ** 2)
 
     @staticmethod
@@ -40,8 +43,20 @@ class OversmoothingMetrics:
         """
         RQ = tr(X^T L X) / ||X||_F^2
         """
-
+        X = X.astype(np.float64)
         de = OversmoothingMetrics.dirichlet_energy(X, L)
         norm = OversmoothingMetrics.feature_norm(X)
 
         return de / (norm + 1e-12)
+
+    @staticmethod
+    def pairwise_distance(X):
+
+        N = X.shape[0]
+        dist = 0
+
+        for i in range(N):
+            for j in range(N):
+                dist += np.linalg.norm(X[i] - X[j])
+
+        return dist / (N * N)

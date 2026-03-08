@@ -7,20 +7,35 @@ from core.utils import GraphUtils
 class GCN:
     def __init__(self, in_feat, hid_feat, out_feat, layers=1):
         self.init_layer = GCNLayer(in_feat, hid_feat)
-        self.hidden_layer = GCNLayer(hid_feat, hid_feat)
+        self.hidden_layers = [GCNLayer(hid_feat, hid_feat) for _ in range(layers)]
         self.out_layer = GCNLayer(hid_feat, out_feat)
         self.layers = layers
 
-    def forward(self, X: np.ndarray, A: np.ndarray):
+    def forward(self, X: np.ndarray, A: np.ndarray, return_embeddings=False):
+
+        embeddings = []
+
         H = GraphUtils.ReLU(self.init_layer.forward(X, A))
-        for i in range(self.layers):
-            H = GraphUtils.ReLU(self.hidden_layer.forward(H, A))
-        return GraphUtils.softmax(self.out_layer.forward(H, A))
+        H = H / (np.linalg.norm(H, axis=1, keepdims=True) + 1e-6)  # prevent overflow
+        embeddings.append(H)
+
+        for layer in self.hidden_layers:
+            H = GraphUtils.ReLU(layer.forward(H, A))
+            H = H / (np.linalg.norm(H, axis=1, keepdims=True) + 1e-6)  # prevent overflow
+            embeddings.append(H)
+
+        out = GraphUtils.softmax(self.out_layer.forward(H, A))
+
+        if return_embeddings:
+            return out, embeddings
+
+        return out
 
     def backward(self, y, y_hat, lr=0.01):
         error = (y_hat - y) / y.shape[0]
-        gradient_out = self.out_layer.backward(error, lr)
-        gradient_hid = self.hidden_layer.backward(gradient_out, lr)
-        gradient_init = self.init_layer.backward(gradient_hid, lr)
+        grad = self.out_layer.backward(error, lr)
+        for layer in reversed(self.hidden_layers):
+            grad = layer.backward(grad, lr)
 
-        return gradient_init, gradient_hid, gradient_out
+        grad = self.init_layer.backward(grad, lr)
+        return grad

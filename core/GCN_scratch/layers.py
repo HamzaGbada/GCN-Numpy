@@ -16,8 +16,11 @@ class GCNLayer(MPNNLayer):
     
     def __init__(self, in_feat, out_feat):
         super().__init__()
-        self.weight = np.random.randn(in_feat, out_feat)
+        limit = np.sqrt(6 / (in_feat + out_feat))
+        self.weight = np.random.uniform(-limit, limit, size=(in_feat, out_feat))
         self.bias = np.zeros((1, out_feat))
+        # self.weight = np.random.randn(in_feat, out_feat) * np.sqrt(2.0 / in_feat)
+        # self.bias = np.zeros((1, out_feat))
         # Cache for backward
         self.L = None
 
@@ -27,7 +30,8 @@ class GCNLayer(MPNNLayer):
     
     def aggregate(self, messages, A):
         """Apply normalized graph Laplacian transformation."""
-        self.L = GraphUtils.normalized_graph_laplacien(A)
+        if self.L is None:
+            self.L = GraphUtils.normalized_graph_laplacien(A)
         return np.dot(self.L, messages)
     
     def update(self, aggregated):

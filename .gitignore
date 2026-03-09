@@ -5,3 +5,4 @@ jupyter-notebook/
 /.venv/
 /GNN_Numpy.egg-info/
 /uv.lock
+/results/

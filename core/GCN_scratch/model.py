@@ -69,10 +69,11 @@ class GCN:
         return out
 
     def backward(self, y: np.ndarray, y_hat: np.ndarray, lr: float = 0.001):
-        """Backward pass (vanilla gradient descent)."""
+        """Backward pass (vanilla gradient descent) with gradient clipping."""
         error = (y_hat - y) / y.shape[0]
         grad = self.out_layer.backward(error, lr)
         for layer in reversed(self.hidden_layers):
             grad = layer.backward(grad, lr)
+            grad = np.clip(grad, -1.0, 1.0)
         grad = self.init_layer.backward(grad, lr)
         return grad

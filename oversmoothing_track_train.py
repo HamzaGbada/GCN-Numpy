@@ -25,7 +25,7 @@ MODEL_NAME = "GCN"          # One of: "GCN", "GAT", "GIN", "GraphSAGE"
 HIDDEN_DIM = 8             # Hidden feature dimension
 EPOCHS = 50                 # Total training epochs
 LR = 0.005                  # Learning rate
-LAYERS_LIST = [64]          # Depths to evaluate (e.g. [4, 8, 16, 32, 64])
+LAYERS_LIST = [4, 8, 16, 32]          # Depths to evaluate (e.g. [4, 8, 16, 32, 64])
 METRIC_INTERVAL = 5         # Compute oversmoothing metrics every N epochs
 RESULT_DIR = "results/gcn_oversmoothing"
 
